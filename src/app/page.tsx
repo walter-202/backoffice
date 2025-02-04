@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 import {
   Box,
@@ -62,13 +63,19 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
+  const router = useRouter();
+
+  const handleClick = (event: any) => {  
+    event.preventDefault(); 
+    router.push('/dashboard')
+  };
 
   return (
     <BackgroundContainer>
       <Container maxWidth="sm">
         <StyledCard>
           <CardContent sx={{ p: 4 }}>
-            <Box component="form" noValidate>
+            <Box component="form" noValidate onSubmit={(e) => e.preventDefault()}>
             <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img src={"/images/icon-tnb.png"} alt="Login Image" style={{ maxWidth: '70px', marginBottom: '1rem' }} />
               <Typography variant="h4" component="h1" sx={{ color: "#36454F", fontWeight: "bold" }}>
@@ -123,6 +130,7 @@ const LoginPage = () => {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                 onClick={handleClick}
               >
                 Sign In
               </StyledButton>

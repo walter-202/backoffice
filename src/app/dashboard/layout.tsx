@@ -1,17 +1,22 @@
-// app/dashboard/layout.tsx
-import { Navbar } from '.@/components/Navbar'; // Componente de navegación
-import { Sidebar } from '.@/components/Sidebar'; // Componente de menú lateral
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import React from 'react';
+import { createTheme } from '@mui/material/styles';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-4">
-          {children} {/* Aquí se renderizará el contenido de cada página */}
-        </main>
-      </div>
+      <nav>
+        {/* Barra de navegación del dashboard */}
+      </nav>
+      <main>{children}</main>
+      <footer>
+        {/* Pie de página del dashboard */}
+      </footer>
     </div>
   );
 }
