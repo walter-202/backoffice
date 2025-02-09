@@ -5,7 +5,7 @@ export default function profilePage() {
 
     return(
         <>
-        <Typography variant="h4" gutterBottom>Index</Typography>
+        <Typography variant="h4" gutterBottom>Profile</Typography>
         </>
     );
 }
