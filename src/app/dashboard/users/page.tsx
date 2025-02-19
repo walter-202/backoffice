@@ -35,24 +35,25 @@ const UsersPage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3000/users', {
-          // Añade opciones si es necesario (ej: headers)
+        const response = await fetch('http://localhost:3000/users/all/data', {
           headers: {
-            'Content-Type': 'application/json', // Ejemplo: si tu API espera JSON
+            'Content-Type': 'application/json', 
           },
         });
   
         if (!response.ok) {
-          const errorText = await response.text(); // Intenta obtener el mensaje de error del servidor
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`); // Muestra el mensaje del servidor o uno genérico
+          const errorText = await response.text(); 
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`);
         }
   
         const jsonData = await response.json();
         setUsers(jsonData);
+        console.log(jsonData);
+
       } catch (err: any) {
-        setError(err.message); // Muestra el mensaje de error
+        setError(err.message); 
         console.error('Error fetching data:', err);
-        showSnackbar(`Error al cargar los usuarios: ${err.message}`, 'error'); // Muestra el mensaje en el snackbar
+        showSnackbar(`Error al cargar los usuarios: ${err.message}`, 'error'); 
       } finally {
         setLoading(false);
       }
@@ -152,7 +153,7 @@ const UsersPage: React.FC = () => {
     const lowerCaseSearch = searchQuery.toLowerCase();
     return (
       user.username.toLowerCase().includes(lowerCaseSearch) ||
-      user.email.toLowerCase().includes(lowerCaseSearch) ||
+      (user.email && user.email.toLowerCase().includes(lowerCaseSearch)) || 
       user.fk_profile ||
       user.status
     );
@@ -195,8 +196,8 @@ const UsersPage: React.FC = () => {
         handleSort={handleSort}
         page={page}
         rowsPerPage={rowsPerPage}
-        handleChangePage={handleChangePage} // Pasa la función con el tipo CORRECTO
-        handleChangeRowsPerPage={handleChangeRowsPerPage} // Pasa la función con el tipo CORRECTO
+        handleChangePage={handleChangePage} 
+        handleChangeRowsPerPage={handleChangeRowsPerPage} 
         searchQuery={searchQuery}
       />
       )}

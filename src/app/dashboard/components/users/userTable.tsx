@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 import {
   Paper,
@@ -11,8 +12,8 @@ import {
   TableSortLabel,
   IconButton,
 } from '@mui/material';
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import { User } from '../../../interface/user'; 
+import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { User } from '../../../interface/userData'; 
 import { ChangeEvent, MouseEvent } from 'react';
 import { Chip } from '@mui/material';
 
@@ -46,9 +47,9 @@ const UserTable: React.FC<UserTableProps> = ({
   const filteredUsers = users.filter((user) => {
     const lowerCaseSearch = searchQuery.toLowerCase();
     return (
-      user.username.toLowerCase().includes(lowerCaseSearch) ||
-      user.email.toLowerCase().includes(lowerCaseSearch) ||
-      user.fk_profile ||
+      user.username.toLowerCase()?.includes(lowerCaseSearch) ||
+      user.email?.toLowerCase().includes(lowerCaseSearch) ||
+      (user.fk_profile != null ? user.fk_profile : false) || 
       user.status
     );
   });
@@ -89,7 +90,7 @@ const UserTable: React.FC<UserTableProps> = ({
               <TableCell>{user.username ? user.username : "--"}</TableCell>
               <TableCell>{user.email ? user.email: "--"}</TableCell>
               <TableCell>{user.phone ? user.phone: "--"}</TableCell>
-              <TableCell>{user.fk_profile}</TableCell>
+              <TableCell>{user.profile?.name}</TableCell>
               <TableCell>
                 {user.status === 1 ? ( // Si user.status es 1 (activo)
                   <Chip label="Activo" color="success" />
@@ -99,7 +100,10 @@ const UserTable: React.FC<UserTableProps> = ({
               </TableCell>
 
               <TableCell>
-                <IconButton color="primary" onClick={() => onEdit(user)}>
+                <IconButton color="primary">
+                 <FaEye />
+                </IconButton>
+                <IconButton color="secondary" onClick={() => onEdit(user)}>
                   <FaEdit />
                 </IconButton>
                 <IconButton color="error" onClick={() => onDelete(user.id)}>
