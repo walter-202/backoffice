@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { UserTable, UserForm } from '../components/users';
-import { User } from '../../interface/user';
+import { User } from '../../interface/userData';
 import { ChangeEvent, MouseEvent } from 'react'; 
 
 
@@ -48,7 +48,6 @@ const UsersPage: React.FC = () => {
   
         const jsonData = await response.json();
         setUsers(jsonData);
-        console.log(jsonData);
 
       } catch (err: any) {
         setError(err.message); 
@@ -151,22 +150,22 @@ const UsersPage: React.FC = () => {
 
   const filteredUsers = users.filter((user) => {
     const lowerCaseSearch = searchQuery.toLowerCase();
-    return (
-      user.username.toLowerCase().includes(lowerCaseSearch) ||
-      (user.email && user.email.toLowerCase().includes(lowerCaseSearch)) || 
-      user.fk_profile ||
-      user.status
-    );
+    const usernameMatch = user.username.toLowerCase().includes(lowerCaseSearch);
+    const emailMatch = user.email ? user.email.toLowerCase().includes(lowerCaseSearch) : false;
+    const phoneMatch = user.phone ? String(user.phone).toLowerCase().includes(lowerCaseSearch) : false; 
+
+    return usernameMatch || emailMatch || phoneMatch; 
+
   });
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h5" component="h2">
-          Usuarios
+         Users
         </Typography>
         <Button variant="contained" onClick={() => setOpen(true)}>
-          Agregar Nuevo Usuario
+         Add New User
         </Button>
       </Box>
 

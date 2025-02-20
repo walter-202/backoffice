@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -20,6 +20,11 @@ const RolePage = dynamic(() => import('./role/page'), { ssr: false });
 const IndexPage = dynamic(() => import('./page'), { ssr: false });
 
 const NAVIGATION: Navigation = [
+  {
+    segment: 'person',
+    title: 'person',
+    icon: <BarChartIcon />,  
+  },
   {
     segment: 'security',
     title: 'Security',
@@ -50,40 +55,39 @@ const getDesignTokens = (mode: 'light' | 'dark') => ({
     ...(mode === 'light'
       ? {
           primary: {
-            main: '#90caf9', // Un azul claro como primario (similar a indigo-300 en Material UI)
-            contrastText: '#fff', // Texto en contraste con el primario (blanco para legibilidad)
+            main: '#90caf9',
+            contrastText: '#fff',
           },
           secondary: {
-            main: '#ce93d8', // Un morado suave como secundario (similar a purple-300)
-            contrastText: '#fff', // Texto en contraste con el secundario
+            main: '#ce93d8', 
+            contrastText: '#fff', 
           },
           background: {
-            default: '#fff', // Blanco como fondo predeterminado
-            paper: '#f5f5f5', // Un gris muy claro para superficies (como tarjetas y paneles)
+            default: '#fff', 
+            paper: '#f5f5f5', 
           },
           text: {
-            primary: '#212121', // Negro casi puro para texto principal
-            secondary: '#757575', // Gris para texto secundario (menos importante)
+            primary: '#212121',
+            secondary: '#757575', 
           },
-          // Puedes agregar más colores si lo necesitas (error, warning, info, success)
         }
       : {
           // Paleta de colores para el tema oscuro
           primary: {
-            main: '#5c6bc0', // Un azul más oscuro como primario (similar a indigo-500)
-            contrastText: '#fff', // Texto en contraste con el primario
+            main: '#5c6bc0',
+            contrastText: '#fff', 
           },
           secondary: {
-            main: '#ab47bc', // Un morado más intenso como secundario (similar a purple-500)
-            contrastText: '#fff', // Texto en contraste con el secundario
+            main: '#ab47bc', 
+            contrastText: '#fff', 
           },
           background: {
-            default: '#121212', // Un gris oscuro como fondo predeterminado
-            paper: '#1e1e1e', // Un gris un poco más claro para superficies
+            default: '#121212', 
+            paper: '#1e1e1e',
           },
           text: {
-            primary: '#fff', // Blanco para texto principal
-            secondary: '#9e9e9e', // Un gris claro para texto secundario
+            primary: '#fff', 
+            secondary: '#9e9e9e', 
           },
         }),
   },
