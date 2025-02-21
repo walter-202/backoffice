@@ -35,7 +35,12 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [isPerson, setIsPerson] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
 
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
   
   const initialValues: User = {
     id: 0, 
@@ -134,13 +139,26 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
         return !!username || !!email || !!phone;
       }
     ),
+    password: Yup.string()
+      .required('La contraseña es requerida')
+      .min(6, 'La contraseña debe tener al menos 6 caracteres')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial"),
+    confirmPassword: Yup.string()
+      .required('La confirmación de contraseña es requerida')
+      .oneOf([Yup.ref('password')], 'Las contraseñas deben coincidir'),
   });
 
+  
   const formik = useFormik({
-    initialValues,
+    initialValues: {
+      ...initialValues,
+      password: '',
+      confirmPassword: '',
+    },
     validationSchema,
     onSubmit: (values) => {
-      onSave(values);
+      const { confirmPassword, ...userValues } = values;
+      onSave(userValues);
     },
   });
 
@@ -148,43 +166,73 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{user?.id ? 'Edit User' : 'Add New User'}</DialogTitle>
       <DialogContent>
-        <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <TextField
-            autoFocus
-            margin="dense"
-            name="username"
-            label="User Name"
-            type="text"
-            fullWidth
-            value={formik.values.username}
-            onChange={formik.handleChange}
-            error={formik.touched.username && Boolean(formik.errors.username)}
-            helperText={formik.touched.username && formik.errors.username}
-          />
-          <TextField
-            margin="dense"
-            name="email"
-            label="Email"
-            type="email"
-            fullWidth
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-          />
-          <TextField
-            margin="dense"
-            name="phone"
-            label="Phone"
-            type="text"
-            fullWidth
-            value={formik.values.phone} 
-            onChange={formik.handleChange}
-            error={formik.touched.phone && Boolean(formik.errors.phone)}
-            helperText={formik.touched.phone && formik.errors.phone}
-          />
+          autoFocus
+          margin="dense"
+          name="username"
+          label="User Name"
+          type="text"
+          fullWidth
+          value={formik.values.username}
+          onChange={formik.handleChange}
+          error={formik.touched.username && Boolean(formik.errors.username)}
+          helperText={formik.touched.username && formik.errors.username}
+        />
+        <TextField
+          margin="dense"
+          name="email"
+          label="Email"
+          type="email"
+          fullWidth
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
+        />
+        <TextField
+          margin="dense"
+          name="phone"
+          label="Phone"
+          type="text"
+          fullWidth
+          value={formik.values.phone}
+          onChange={formik.handleChange}
+          error={formik.touched.phone && Boolean(formik.errors.phone)}
+          helperText={formik.touched.phone && formik.errors.phone}
+        />
 
-          {isPerson && (<FormControl fullWidth margin="dense" error={formik.touched.fk_person && Boolean(formik.errors.fk_person)}> {/* Added error prop */}
+        <TextField
+          margin="dense"
+          name="password"
+          label="Password"
+          type="password"
+          fullWidth
+          value={formik.values.password}
+          onChange={formik.handleChange}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          helperText={formik.touched.password && formik.errors.password}
+        />
+
+        <TextField
+          margin="dense"
+          name="confirmPassword"
+          label="Confirm Password"
+          type="password"
+          fullWidth
+          value={formik.values.confirmPassword}
+          onChange={formik.handleChange}
+          error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+          helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+        />
+
+
+        {isPerson && (
+          <FormControl 
+          fullWidth 
+          margin="dense" 
+          error={formik.touched.fk_person && Boolean(formik.errors.fk_person)} // Esto es correcto
+          >
             <InputLabel id="person-select-label">Person</InputLabel>
             <Select
               labelId="person-select-label"
@@ -193,9 +241,8 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
               value={formik.values.fk_person}
               label="Person"
               onChange={formik.handleChange}
-              displayEmpty 
             >
-              <MenuItem value="">Select a person</MenuItem> 
+              {/* <MenuItem value="">Select a person</MenuItem> <- Se elimina este MenuItem */}
               {loading ? (
                 <MenuItem value="">Loading...</MenuItem>
               ) : error ? (
@@ -210,17 +257,18 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
                 ))
               )}
             </Select>
-            <FormHelperText>{formik.touched.fk_person && formik.errors.fk_person}</FormHelperText> {/* Added FormHelperText */}
+            <FormHelperText>{formik.touched.fk_person && formik.errors.fk_person}</FormHelperText> {/* Esto también es correcto */}
           </FormControl>
-          )}
+        )}
 
-          <DialogActions>
-            <Button onClick={onClose}>Cancelar</Button>
-            <Button type="submit" variant="contained">
-              Guardar
-            </Button>
-          </DialogActions>
-        </form>
+        
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained">
+            Guardar
+          </Button>
+        </DialogActions>
+      </form>
       </DialogContent>
     </Dialog>
   );
