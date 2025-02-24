@@ -100,10 +100,10 @@ const UsersPage: React.FC = () => {
       }
 
       setUsers(users.filter((user) => user.id !== id));
-      showSnackbar('Usuario eliminado con éxito', 'success');
+      showSnackbar('Successfully deleted user', 'success');
     } catch (error: any) {
-      console.error('Error al eliminar usuario:', error);
-      showSnackbar('Error al eliminar usuario', 'error');
+      console.error('Error when deleting user: ', error);
+      showSnackbar('Error deleting user', 'error');
     }
   };
 
@@ -129,17 +129,17 @@ const UsersPage: React.FC = () => {
 
       if (method === 'POST') {
         setUsers([...users, updatedUser]);
-        showSnackbar('Usuario creado con éxito', 'success');
+        showSnackbar('User created successfully', 'success');
       } else {
         setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-        showSnackbar('Usuario actualizado con éxito', 'success');
+        showSnackbar('User successfully updated', 'success');
       }
 
       setOpen(false);
       setUser(null);
     } catch (error: any) {
-      console.error('Error al guardar usuario:', error);
-      showSnackbar('Error al guardar usuario', 'error');
+      console.error('Error saving user: ', error);
+      showSnackbar('Error saving user ', 'error');
     }
   };
 
@@ -228,8 +228,8 @@ const UsersPage: React.FC = () => {
 
       <UserForm open={open} isEdit={isEdit} onClose={() => setOpen(false)} user={user} onSave={handleSave} />
 
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: 'auto', minWidth: 300, fontSize: '1.2rem', padding: '1rem' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -167,14 +167,14 @@ const UserTable: React.FC<UserTableProps> = ({
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Confirmar eliminación"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
         <DialogContent>
-          {"¿Estás seguro de que deseas eliminar este usuario?"}
+          {"Are you sure you want to delete this user?"}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteConfirmation}>Cancelar</Button>
+          <Button onClick={handleCloseDeleteConfirmation}>Cancel</Button>
           <Button onClick={handleDelete} color="error">
-            Eliminar
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

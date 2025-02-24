@@ -345,10 +345,10 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
         
         <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
+          <Button onClick={onClose}>Cancel</Button>
            {isEdit && (
             <Button type="submit" variant="contained">
-            Guardar
+            Save 
             </Button>
             )}
         </DialogActions>
