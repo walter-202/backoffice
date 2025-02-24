@@ -119,8 +119,8 @@ const UserForm: React.FC<UserFormProps> = ({ open, isEdit, onClose, user, onSave
 
     } catch (err: any) {
       setError(err.message);
-      console.error('Error al obtener datos:', err);
-      showSnackbar(`Error al cargar datos: ${err.message}`, 'error'); 
+      console.error('Error getting data:', err);
+      showSnackbar(`Error getting data: ${err.message}`, 'error'); 
     } finally {
       setLoading(false);
     }
@@ -154,21 +154,21 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 };
 
   const validationSchema = Yup.object().shape({
-    fk_profile: Yup.number().required('El perfil es requerido').nullable(),
-    fk_person: Yup.number().required('La persona es requerida').nullable(),
+    fk_profile: Yup.number().required('Profile is required').nullable(),
+    fk_person: Yup.number().required('The person is required').nullable(),
     username: Yup.string().test(
       'alMenosUnoRequerido',
-      'Al menos uno de los campos (Nombre, Email o Teléfono) es requerido',
+      'At least one of the fields (Name, Email or Telephone) is required',
       function (username) {
         const { email, phone } = this.parent;
         return !!username || !!email || !!phone;
       }
     ),
     email: Yup.string()
-      .email('Formato de email inválido')
+      .email('Invalid email format')
       .test(
         'alMenosUnoRequerido',
-        'Al menos uno de los campos (Nombre, Email o Teléfono) es requerido',
+        'At least one of the fields (Name, Email or Telephone) is required',
         function (email) {
           const { username, phone } = this.parent;
           return !!username || !!email || !!phone;
@@ -176,19 +176,19 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
       ),
     phone: Yup.string().test(
       'alMenosUnoRequerido',
-      'Al menos uno de los campos (Nombre, Email o Teléfono) es requerido',
+      'At least one of the fields (Name, Email or Telephone) is required',
       function (phone) {
         const { username, email } = this.parent;
         return !!username || !!email || !!phone;
       }
     ),
     password: Yup.string()
-      .required('La contraseña es requerida')
-      .min(6, 'La contraseña debe tener al menos 6 caracteres')
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial"),
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, "The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
     confirmPassword: Yup.string()
-      .required('La confirmación de contraseña es requerida')
-      .oneOf([Yup.ref('password')], 'Las contraseñas deben coincidir'),
+      .required('Password confirmation is required')
+      .oneOf([Yup.ref('password')], 'Passwords must match'),
   });
 
   
@@ -279,7 +279,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           <FormControl 
           fullWidth 
           margin="dense" 
-          error={formik.touched.fk_person && Boolean(formik.errors.fk_person)} // Esto es correcto
+          error={formik.touched.fk_person && Boolean(formik.errors.fk_person)} 
           >
             <InputLabel id="person-select-label">Person</InputLabel>
             <Select
@@ -291,7 +291,6 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
               label="Person"
               onChange={formik.handleChange}
             >
-              {/* <MenuItem value="">Select a person</MenuItem> <- Se elimina este MenuItem */}
               {loading ? (
                 <MenuItem value="">Loading...</MenuItem>
               ) : error ? (
@@ -306,7 +305,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
                 ))
               )}
             </Select>
-            <FormHelperText>{formik.touched.fk_person && formik.errors.fk_person}</FormHelperText> {/* Esto también es correcto */}
+            <FormHelperText>{formik.touched.fk_person && formik.errors.fk_person}</FormHelperText> 
           </FormControl>
         )}
 

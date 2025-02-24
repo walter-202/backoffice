@@ -14,6 +14,11 @@ import { useDemoRouter } from '@toolpad/core/internal';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
+import PeopleIcon from '@mui/icons-material/People'; 
+import SecurityIcon from '@mui/icons-material/Security'; 
+import PersonIcon from '@mui/icons-material/Person'; 
+import LockIcon from '@mui/icons-material/Lock';
+
 const UsersPage = dynamic(() => import('./users/page'), { ssr: false });
 const ProfilePage = dynamic(() => import('./profile/page'), { ssr: false });
 const RolePage = dynamic(() => import('./role/page'), { ssr: false });
@@ -23,31 +28,32 @@ const NAVIGATION: Navigation = [
   {
     segment: 'person',
     title: 'person',
-    icon: <BarChartIcon />,  
+    icon: <PeopleIcon />, 
   },
   {
     segment: 'security',
     title: 'Security',
-    icon: <BarChartIcon />,
+    icon: <SecurityIcon />, 
     children: [
       {
         segment: 'users',
         title: 'Users',
-        icon: <DescriptionIcon />,
+        icon: <PersonIcon />, 
       },
       {
         segment: 'profile',
         title: 'Profile',
-        icon: <DescriptionIcon />,
+        icon: <PersonIcon />, 
       },
       {
         segment: 'role',
         title: 'Role',
-        icon: <DescriptionIcon />,
+        icon: <LockIcon />, 
       },
     ],
   },
 ];
+
 
 const getDesignTokens = (mode: 'light' | 'dark') => ({
   palette: {

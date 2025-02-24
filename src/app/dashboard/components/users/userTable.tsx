@@ -21,6 +21,7 @@ import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { User } from '../../../interface/userData'; 
 import { ChangeEvent, MouseEvent } from 'react';
 import { Chip } from '@mui/material';
+import Switch from '@mui/material/Switch';
 
 interface UserTableProps {
   users: User[];
@@ -36,6 +37,8 @@ interface UserTableProps {
   handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement>) => void; 
   searchQuery: string;
 }
+
+const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 const UserTable: React.FC<UserTableProps> = ({
   users,
@@ -127,9 +130,9 @@ const UserTable: React.FC<UserTableProps> = ({
               <TableCell>{user.profile?.name}</TableCell>
               <TableCell>
                 {user.status === 1 ? ( 
-                  <Chip label="Activo" color="success" />
+                 <><Chip label="Active" color="success" /> <Switch {...label} defaultChecked /></>
                 ) : ( 
-                  <Chip label="Inactivo" color="error" />
+                  <><Chip label="Inactive" color="error" /> <Switch {...label} defaultChecked /></>
                 )}
               </TableCell>
 
@@ -138,7 +141,7 @@ const UserTable: React.FC<UserTableProps> = ({
                  <FaEye />
                 </IconButton>
                 <IconButton color="secondary" onClick={() => onEdit(user)}>
-                  <FaEdit />
+                  <FaEdit style={{ color: 'green' }} />
                 </IconButton>
                 <IconButton color="error" onClick={() => handleDeleteConfirmation(user.id)}> 
                   <FaTrash />
