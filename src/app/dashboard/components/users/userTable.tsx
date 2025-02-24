@@ -1,6 +1,10 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState} from 'react';
 import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Paper,
   Table,
   TableBody,
@@ -11,6 +15,7 @@ import {
   TablePagination,
   TableSortLabel,
   IconButton,
+  Button
 } from '@mui/material';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { User } from '../../../interface/userData'; 
@@ -20,6 +25,7 @@ import { Chip } from '@mui/material';
 interface UserTableProps {
   users: User[];
   onEdit: (user: User) => void;
+  onView: (user: User) => void;
   onDelete: (id: number) => Promise<void>;
   orderBy: string;
   order: 'asc' | 'desc';
@@ -33,6 +39,7 @@ interface UserTableProps {
 
 const UserTable: React.FC<UserTableProps> = ({
   users,
+  onView,
   onEdit,
   onDelete,
   orderBy,
@@ -54,13 +61,40 @@ const UserTable: React.FC<UserTableProps> = ({
     );
   });
 
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewUser, setViewUser] = useState<User | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+ 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const isAsc = orderBy === a.username && order === 'asc'; // Ordenar por nombre por defecto
     return isAsc ? a.username.localeCompare(b.username) : b.username.localeCompare(a.username);
   });
 
+  const handleDeleteConfirmation = (id: number) => {
+    setUserToDelete(id);
+    setConfirmDeleteOpen(true);
+  };
+
+ const handleDelete = async () => {
+    if (userToDelete) {
+      try {
+        await onDelete(userToDelete);
+      } catch (error) {
+        // Manejar error si la eliminación falla
+        console.error("Error deleting user:", error);
+      } finally {
+        setUserToDelete(null);
+        setConfirmDeleteOpen(false);
+      }
+    }
+  };
   const paginatedUsers = sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  const handleCloseDeleteConfirmation = () => {
+    setConfirmDeleteOpen(false);
+    setUserToDelete(null);
+  };
 
   return (
     <TableContainer component={Paper}>
@@ -92,21 +126,21 @@ const UserTable: React.FC<UserTableProps> = ({
               <TableCell>{user.phone ? user.phone: "--"}</TableCell>
               <TableCell>{user.profile?.name}</TableCell>
               <TableCell>
-                {user.status === 1 ? ( // Si user.status es 1 (activo)
+                {user.status === 1 ? ( 
                   <Chip label="Activo" color="success" />
-                ) : ( // Si user.status no es 1 (inactivo)
+                ) : ( 
                   <Chip label="Inactivo" color="error" />
                 )}
               </TableCell>
 
               <TableCell>
-                <IconButton color="primary">
+                <IconButton color="primary" onClick={() => onView(user)}>
                  <FaEye />
                 </IconButton>
                 <IconButton color="secondary" onClick={() => onEdit(user)}>
                   <FaEdit />
                 </IconButton>
-                <IconButton color="error" onClick={() => onDelete(user.id)}>
+                <IconButton color="error" onClick={() => handleDeleteConfirmation(user.id)}> 
                   <FaTrash />
                 </IconButton>
               </TableCell>
@@ -118,11 +152,30 @@ const UserTable: React.FC<UserTableProps> = ({
         component="div"
         count={filteredUsers.length}
         page={page}
-        onPageChange={handleChangePage} // Pasa la función con el tipo correcto
+        onPageChange={handleChangePage} 
         rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage} // Pasa la función con el tipo correcto
+        onRowsPerPageChange={handleChangeRowsPerPage} 
         rowsPerPageOptions={[5, 10, 25]}
       />
+
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={handleCloseDeleteConfirmation}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirmar eliminación"}</DialogTitle>
+        <DialogContent>
+          {"¿Estás seguro de que deseas eliminar este usuario?"}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteConfirmation}>Cancelar</Button>
+          <Button onClick={handleDelete} color="error">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </TableContainer>
   );
 };

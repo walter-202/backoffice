@@ -6,8 +6,9 @@ export interface User {
   phone: string | null; 
   validate_phone: number; 
   password: string;
-  fk_profile: number;
-  fk_person: number;
+  confirmPassword?: string; 
+  fk_profile: string;
+  fk_person: string;
   status: number; 
   createdAt: string;
   updatedAt: string;

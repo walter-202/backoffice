@@ -21,6 +21,7 @@ const UsersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [isEdit, setIsedit] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [orderBy, setOrderBy] = useState('name');
@@ -30,6 +31,8 @@ const UsersPage: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [profiles, setProfiles] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +52,14 @@ const UsersPage: React.FC = () => {
         const jsonData = await response.json();
         setUsers(jsonData);
 
+        const fetchProfiles = async () => {
+          const response = await fetch('http://localhost:3000/profile'); 
+          const profileData = await response.json();
+          setProfiles(profileData);
+        };
+  
+      fetchProfiles();
+
       } catch (err: any) {
         setError(err.message); 
         console.error('Error fetching data:', err);
@@ -62,6 +73,18 @@ const UsersPage: React.FC = () => {
   }, []);
 
   const handleEdit = (user: User) => {
+    setUser(user);
+    setIsedit(true);
+    setOpen(true);
+  };
+
+  const handleCreate = () => {
+    setIsedit(true);
+    setOpen(true);
+  };
+
+   const handleView = (user: User) => {
+    setIsedit(false);
     setUser(user);
     setOpen(true);
   };
@@ -102,6 +125,7 @@ const UsersPage: React.FC = () => {
       }
 
       const updatedUser = await response.json();
+      console.log(updatedUser)
 
       if (method === 'POST') {
         setUsers([...users, updatedUser]);
@@ -164,7 +188,7 @@ const UsersPage: React.FC = () => {
         <Typography variant="h5" component="h2">
          Users
         </Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>
+        <Button variant="contained" onClick={() => handleCreate()}>
          Add New User
         </Button>
       </Box>
@@ -189,6 +213,7 @@ const UsersPage: React.FC = () => {
         <UserTable
         users={filteredUsers}
         onEdit={handleEdit}
+        onView={handleView}
         onDelete={handleDelete}
         orderBy={orderBy}
         order={order}
@@ -201,7 +226,7 @@ const UsersPage: React.FC = () => {
       />
       )}
 
-      <UserForm open={open} onClose={() => setOpen(false)} user={user} onSave={handleSave} />
+      <UserForm open={open} isEdit={isEdit} onClose={() => setOpen(false)} user={user} onSave={handleSave} />
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>

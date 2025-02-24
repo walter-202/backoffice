@@ -18,16 +18,18 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { User } from '../../../interface/userData'; 
 import { Person } from '../../../interface/person';
+import { Profile } from '../../../interface/profile';
 
 interface UserFormProps {
   open: boolean;
+  isEdit: boolean;
   onClose: () => void;
   user: User | null;
   onSave: (user: User) => void;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
-
+const UserForm: React.FC<UserFormProps> = ({ open, isEdit, onClose, user, onSave }) => {
+  const [profile, setProfile] = useState<Profile[]>([]);
   const [person, setPerson] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [isPerson, setIsPerson] = useState(false);
+  const [isProfile, setIsProfile] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -50,9 +53,10 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
     phone: '', 
     validate_phone: 0,
     password: '',
-    fk_profile: 0,
-    fk_person: 0, 
-    status: 0, 
+    confirmPassword: '',
+    fk_profile: '',
+    fk_person: '', 
+    status: 1, 
     createdAt: '', 
     updatedAt: '', 
     person: {
@@ -74,44 +78,83 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
     },
   };
   
-
+  const [formValues, setFormValues] = useState(initialValues);
+  
   useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch('http://localhost:3000/person', {
-            headers: {
-              'Content-Type': 'application/json', 
-            },
-          });
-    
-          if (!response.ok) {
-            const errorText = await response.text(); 
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`);
-          }
-    
-          const jsonData = await response.json();
-          setPerson(jsonData);
-          setIsPerson(true); 
-        } catch (err: any) {
-          setError(err.message); 
-          console.error('Error fetching data:', err);
-          showSnackbar(`Error al cargar los usuarios: ${err.message}`, 'error'); 
-        } finally {
-          setLoading(false);
-        }
-      };
-    
-      fetchData();
-    }, []);
+            
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Obtener datos de Person
+      const personResponse = await fetch('http://localhost:3000/person', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
+      if (!personResponse.ok) {
+        const errorText = await personResponse.text();
+        throw new Error(`Error HTTP! status: ${personResponse.status}, mensaje: ${errorText || 'Sin mensaje'}`);
+      }
+
+      const personData = await personResponse.json();
+      setPerson(personData);
+      setIsPerson(true);
+
+      // Obtener datos de Profile (nueva llamada fetch)
+      const profileResponse = await fetch('http://localhost:3000/profile', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!profileResponse.ok) {
+        const errorText = await profileResponse.text();
+        throw new Error(`Error HTTP! status: ${profileResponse.status}, mensaje: ${errorText || 'Sin mensaje'}`);
+      }
+
+      const profileData = await profileResponse.json();
+      setProfile(profileData); 
+      setIsProfile(true);
+
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Error al obtener datos:', err);
+      showSnackbar(`Error al cargar datos: ${err.message}`, 'error'); 
+    } finally {
+      setLoading(false);
+    }
   };
 
+  fetchData();
+}, []);
+
+ useEffect(() => {
+    if (open) { 
+      setFormValues(initialValues); 
+      formik.resetForm(); 
+      formik.setTouched({}); 
+      if (user) {
+        setFormValues({...initialValues, ...user})
+        formik.setValues({
+          ...initialValues,
+          ...user,
+          password: '',
+          confirmPassword: '',
+        },)
+      }
+    }
+  }, [open, user]); 
+
+
+const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
+  setSnackbarMessage(message);
+  setSnackbarSeverity(severity);
+  setSnackbarOpen(true);
+};
+
   const validationSchema = Yup.object().shape({
+    fk_profile: Yup.number().required('El perfil es requerido').nullable(),
     fk_person: Yup.number().required('La persona es requerida').nullable(),
     username: Yup.string().test(
       'alMenosUnoRequerido',
@@ -160,6 +203,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
       const { confirmPassword, ...userValues } = values;
       onSave(userValues);
     },
+    enableReinitialize: true, 
   });
 
   return (
@@ -169,6 +213,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
       <form onSubmit={formik.handleSubmit}>
         <TextField
           autoFocus
+          disabled={!isEdit} 
           margin="dense"
           name="username"
           label="User Name"
@@ -180,6 +225,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
           helperText={formik.touched.username && formik.errors.username}
         />
         <TextField
+          disabled={!isEdit} 
           margin="dense"
           name="email"
           label="Email"
@@ -191,6 +237,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
           helperText={formik.touched.email && formik.errors.email}
         />
         <TextField
+          disabled={!isEdit} 
           margin="dense"
           name="phone"
           label="Phone"
@@ -203,6 +250,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
         />
 
         <TextField
+          disabled={!isEdit} 
           margin="dense"
           name="password"
           label="Password"
@@ -215,6 +263,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
         />
 
         <TextField
+          disabled={!isEdit} 
           margin="dense"
           name="confirmPassword"
           label="Confirm Password"
@@ -226,7 +275,6 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
           helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
         />
 
-
         {isPerson && (
           <FormControl 
           fullWidth 
@@ -235,6 +283,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
           >
             <InputLabel id="person-select-label">Person</InputLabel>
             <Select
+              disabled={!isEdit} 
               labelId="person-select-label"
               id="person-select"
               name="fk_person"
@@ -261,12 +310,48 @@ const UserForm: React.FC<UserFormProps> = ({ open, onClose, user, onSave }) => {
           </FormControl>
         )}
 
+        {isProfile && (
+          <FormControl 
+          fullWidth 
+          margin="dense" 
+          error={formik.touched.fk_profile && Boolean(formik.errors.fk_profile)} 
+          >
+            <InputLabel id="profile-select-label">Profile</InputLabel>
+            <Select
+              disabled={!isEdit} 
+              labelId="profile-select-label"
+              id="profile-select"
+              name="fk_profile"
+              value={formik.values.fk_profile}
+              label="Profile"
+              onChange={formik.handleChange}
+            >
+              {loading ? (
+                <MenuItem value="">Loading...</MenuItem>
+              ) : error ? (
+                <MenuItem value="">Error: {error}</MenuItem>
+              ) : person.length === 0 ? (
+                <MenuItem value="">Not profile available</MenuItem>
+              ) : (
+                profile.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {`${p.name}`}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+            <FormHelperText>{formik.touched.fk_profile && formik.errors.fk_profile}</FormHelperText> 
+          </FormControl>
+        )}
+
         
         <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained">
+           {isEdit && (
+            <Button type="submit" variant="contained">
             Guardar
-          </Button>
+            </Button>
+            )}
         </DialogActions>
       </form>
       </DialogContent>
