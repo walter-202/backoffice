@@ -1,0 +1,7 @@
+-Modificar el label de los inpus y cuando este bloqueado no se muestre tan claro
+-Quitar los useffec repetidos (cargar listados)
+-envios de sms y email
+-deploy en vercel
+-Subir la base de datos al vps
+-modificar los colores del dasboard
+Configurar los enviroments

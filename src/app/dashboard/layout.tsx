@@ -19,6 +19,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import PersonIcon from '@mui/icons-material/Person'; 
 import LockIcon from '@mui/icons-material/Lock';
 
+const PersonPage = dynamic(() => import('./person/page'), { ssr: false });
 const UsersPage = dynamic(() => import('./users/page'), { ssr: false });
 const ProfilePage = dynamic(() => import('./profile/page'), { ssr: false });
 const RolePage = dynamic(() => import('./role/page'), { ssr: false });
@@ -105,6 +106,8 @@ function DemoPageContent({ pathname }: { pathname: string }) {
   const segment = pathname.split('/').pop(); 
 
   switch (segment) {
+    case 'person':
+      return <PersonPage />;
     case 'users':
       return <UsersPage />;
     case 'profile':

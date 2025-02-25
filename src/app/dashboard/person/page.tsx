@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
-import { ProfileTable, ProfileForm } from '../components/profile';
+import { PersonTable, PersonForm } from '../components/person';
 import { Person } from '../../interface/person';
 import { ChangeEvent, MouseEvent } from 'react'; 
 
@@ -148,7 +148,6 @@ const ProfilePage: React.FC = () => {
     setPage(0);
   };
 
-
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -199,8 +198,8 @@ const ProfilePage: React.FC = () => {
       ) : error ? (
         <Typography color="error">{error}</Typography>
       ) : (
-        <ProfileTable
-        profiles={filteredPersons}
+        <PersonTable
+        persons={filteredPersons}
         onEdit={handleEdit}
         onView={handleView}
         onDelete={handleDelete}
@@ -215,7 +214,7 @@ const ProfilePage: React.FC = () => {
       />
       )}
 
-      <ProfileForm open={open} isEdit={isEdit} onClose={() => setOpen(false)} person={person} onSave={handleSave} />
+      <PersonForm open={open} isEdit={isEdit} onClose={() => setOpen(false)} person={person} onSave={handleSave} />
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: 'auto', minWidth: 300, fontSize: '1.2rem', padding: '1rem' }}>

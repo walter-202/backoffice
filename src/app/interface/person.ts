@@ -7,5 +7,6 @@ export interface Person {
   date_of_birth: string | null; 
   email: string | null; 
   phone: string | null; 
+  createdAt: string;
   updatedAt: string;
 }
