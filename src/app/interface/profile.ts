@@ -1,7 +1,7 @@
 export interface Profile {
   id: number;
   name: string;
-  role: number;
+  role: string;
   createdAt: string | null;
   updatedAt: string | null; 
 }

@@ -24,7 +24,7 @@ import { Chip } from '@mui/material';
 import Switch from '@mui/material/Switch';
 
 interface ProfileTableProps {
-  users: Profile[];
+  profiles: Profile[];
   onEdit: (profile: Profile) => void;
   onView: (profile: Profile) => void;
   onDelete: (id: number) => Promise<void>;
@@ -40,7 +40,7 @@ interface ProfileTableProps {
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
-const ProfileTable: React.FC<UserTableProps> = ({
+const ProfileTable: React.FC<ProfileTableProps> = ({
   profiles,
   onView,
   onEdit,
@@ -54,40 +54,39 @@ const ProfileTable: React.FC<UserTableProps> = ({
   handleChangeRowsPerPage,
  searchQuery,
 }) => {
-  const filteredUsers = users.filter((user) => {
+  const filteredProfiles = profiles.filter((profile) => {
     const lowerCaseSearch = searchQuery.toLowerCase();
     return (
-      user.username.toLowerCase()?.includes(lowerCaseSearch) ||
-      user.email?.toLowerCase().includes(lowerCaseSearch) ||
-      (user.fk_profile != null ? user.fk_profile : false) || 
-      user.status
+      profile.name ||
+      profile.name.toLowerCase()?.includes(lowerCaseSearch) ||
+      profile.role
     );
   });
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [viewUser, setViewUser] = useState<User | null>(null);
+  const [viewProfile, setViewProfile] = useState<Profile | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [profileToDelete, setProfileToDelete] = useState<number | null>(null);
  
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const isAsc = orderBy === a.username && order === 'asc'; // Ordenar por nombre por defecto
-    return isAsc ? a.username.localeCompare(b.username) : b.username.localeCompare(a.username);
+  const sortedUsers = [...filteredProfiles].sort((a, b) => {
+    const isAsc = orderBy === a.name && order === 'asc'; // Ordenar por nombre por defecto
+    return isAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
   });
 
   const handleDeleteConfirmation = (id: number) => {
-    setUserToDelete(id);
+    setProfileToDelete(id);
     setConfirmDeleteOpen(true);
   };
 
  const handleDelete = async () => {
-    if (userToDelete) {
+    if (profileToDelete) {
       try {
-        await onDelete(userToDelete);
+        await onDelete(profileToDelete);
       } catch (error) {
         // Manejar error si la eliminación falla
         console.error("Error deleting user:", error);
       } finally {
-        setUserToDelete(null);
+        setProfileToDelete(null);
         setConfirmDeleteOpen(false);
       }
     }
@@ -96,7 +95,7 @@ const ProfileTable: React.FC<UserTableProps> = ({
 
   const handleCloseDeleteConfirmation = () => {
     setConfirmDeleteOpen(false);
-    setUserToDelete(null);
+    setProfileToDelete(null);
   };
 
   return (
@@ -104,7 +103,7 @@ const ProfileTable: React.FC<UserTableProps> = ({
       <Table>
         <TableHead>
           <TableRow>
-            {['Username', 'Email', 'Phone', 'Profile', 'Status', 'Actions'].map((header) => (
+            {['Id', 'Name', 'Role', 'Actions'].map((header) => (
               <TableCell key={header}>
                 {header === 'actions' ? (
                   'Actions'
@@ -122,28 +121,20 @@ const ProfileTable: React.FC<UserTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {paginatedUsers.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.username ? user.username : "--"}</TableCell>
-              <TableCell>{user.email ? user.email: "--"}</TableCell>
-              <TableCell>{user.phone ? user.phone: "--"}</TableCell>
-              <TableCell>{user.profile?.name}</TableCell>
-              <TableCell>
-                {user.status === 1 ? ( 
-                 <><Chip label="Active" color="success" /> <Switch {...label} defaultChecked /></>
-                ) : ( 
-                  <><Chip label="Inactive" color="error" /> <Switch {...label} defaultChecked /></>
-                )}
-              </TableCell>
+          {paginatedUsers.map((profile) => (
+            <TableRow key={profile.id}>
+              <TableCell>{profile.id }</TableCell>
+              <TableCell>{profile.name }</TableCell>
+              <TableCell>{profile.role }</TableCell>
 
               <TableCell>
-                <IconButton color="primary" onClick={() => onView(user)}>
+                <IconButton color="primary" onClick={() => onView(profile)}>
                  <FaEye />
                 </IconButton>
-                <IconButton color="secondary" onClick={() => onEdit(user)}>
+                <IconButton color="secondary" onClick={() => onEdit(profile)}>
                   <FaEdit style={{ color: 'green' }} />
                 </IconButton>
-                <IconButton color="error" onClick={() => handleDeleteConfirmation(user.id)}> 
+                <IconButton color="error" onClick={() => handleDeleteConfirmation(profile.id)}> 
                   <FaTrash />
                 </IconButton>
               </TableCell>
@@ -153,7 +144,7 @@ const ProfileTable: React.FC<UserTableProps> = ({
       </Table>
       <TablePagination
         component="div"
-        count={filteredUsers.length}
+        count={filteredProfiles.length}
         page={page}
         onPageChange={handleChangePage} 
         rowsPerPage={rowsPerPage}
@@ -169,7 +160,7 @@ const ProfileTable: React.FC<UserTableProps> = ({
       >
         <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
         <DialogContent>
-          {"Are you sure you want to delete this user?"}
+          {"Are you sure you want to delete this profile?"}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteConfirmation}>Cancel</Button>
@@ -183,4 +174,4 @@ const ProfileTable: React.FC<UserTableProps> = ({
   );
 };
 
-export default UserTable;
+export default ProfileTable;

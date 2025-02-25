@@ -1,3 +1,3 @@
 'use client'; 
-export { default as UserTable } from './profileTable';
-export { default as UserForm } from './profileForm';
+export { default as ProfileTable } from './profileTable';
+export { default as ProfileForm } from './profileForm';

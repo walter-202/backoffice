@@ -63,12 +63,13 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const handleEdit = (profile: Profile) => {
-    setProile(profile);
+    setProfile(profile);
     setIsedit(true);
     setOpen(true);
   };
 
   const handleCreate = () => {
+    setProfile(null);
     setIsedit(true);
     setOpen(true);
   };
@@ -107,7 +108,7 @@ const ProfilePage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(user),
+        body: JSON.stringify(profile),
       });
 
       if (!response.ok) {
@@ -117,7 +118,7 @@ const ProfilePage: React.FC = () => {
       const updatedProfile = await response.json();
       
       if (method === 'POST') {
-        setProfile([...profiles, updatedProfile]);
+        setProfiles([...profiles, updatedProfile]);
         showSnackbar('Profile created successfully', 'success');
       } else {
         setProfiles(profiles.map((p) => (p.id === updatedProfile.id ? updatedProfile : p)));
@@ -197,7 +198,7 @@ const ProfilePage: React.FC = () => {
         <Typography color="error">{error}</Typography>
       ) : (
         <ProfileTable
-        users={filteredProfiles}
+        profiles={filteredProfiles}
         onEdit={handleEdit}
         onView={handleView}
         onDelete={handleDelete}

@@ -5,6 +5,7 @@ export interface Person {
   last_name: string;
   address: string;
   date_of_birth: string | null; 
+  email: string | null; 
   phone: string | null; 
   updatedAt: string;
 }
