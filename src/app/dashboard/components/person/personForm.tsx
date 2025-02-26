@@ -55,39 +55,6 @@ const PersonForm: React.FC<PersonFormProps> = ({ open, isEdit, onClose, person, 
   
   const [formValues, setFormValues] = useState(initialValues);
   
-  /* useEffect(() => {
-            
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-    
-      const personResponse = await fetch('http://localhost:3000/profile', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!personResponse.ok) {
-        const errorText = await personResponse.text();
-        throw new Error(`Error HTTP! status: ${personResponse.status}, mensaje: ${errorText || 'Sin mensaje'}`);
-      }
-
-      const profileData = await personResponse.json();
-    //setProfile(profileData); 
-      setIsPerson(true);
-
-    } catch (err: any) {
-      setError(err.message);
-      console.error('Error getting data:', err);
-      showSnackbar(`Error getting data: ${err.message}`, 'error'); 
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-}, []); */
-
 useEffect(() => {
   if (open) {
     formik.resetForm(); 
@@ -139,6 +106,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.first_name && Boolean(formik.errors.first_name)}
           helperText={formik.touched.first_name && formik.errors.first_name}
+          InputLabelProps={{ shrink: true }} 
         />
          <TextField
           disabled={!isEdit} 
@@ -149,6 +117,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           fullWidth
           value={formik.values.middle_name}
           onChange={formik.handleChange}
+          InputLabelProps={{ shrink: true }} 
         />
 
           <TextField
@@ -162,6 +131,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.last_name && Boolean(formik.errors.last_name)}
           helperText={formik.touched.last_name && formik.errors.last_name}
+          InputLabelProps={{ shrink: true }} 
         />
         
         <TextField
@@ -173,6 +143,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           fullWidth
           value={formik.values.address}
           onChange={formik.handleChange}
+          InputLabelProps={{ shrink: true }} 
         />
 
         <TextField
@@ -184,6 +155,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           fullWidth
           value={formik.values.date_of_birth}
           onChange={formik.handleChange}
+          InputLabelProps={{ shrink: true }} 
         />
 
           <TextField
@@ -197,6 +169,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.email && Boolean(formik.errors.email)}
           helperText={formik.touched.email && formik.errors.email}
+          InputLabelProps={{ shrink: true }} 
         />
 
         <TextField
@@ -210,6 +183,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.phone && Boolean(formik.errors.phone)}
           helperText={formik.touched.phone && formik.errors.phone}
+          InputLabelProps={{ shrink: true }} 
         />
 
         <DialogActions>

@@ -134,17 +134,15 @@ const UserForm: React.FC<UserFormProps> = ({ open, isEdit, onClose, user, onSave
       setFormValues(initialValues); 
       formik.resetForm(); 
       formik.setTouched({}); 
-      if (user) {
-        setFormValues({...initialValues, ...user})
-        formik.setValues({
-          ...initialValues,
-          ...user,
-          password: '',
-          confirmPassword: '',
-        },)
-      }
+      setFormValues({...initialValues, ...user})
+      formik.setValues({
+        ...initialValues,
+        ...user,
+        password: '',
+        confirmPassword: '',
+      },)
     }
-  }, [open, user]); 
+  }, [open, user, isEdit]); 
 
 
 const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
@@ -223,6 +221,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.username && Boolean(formik.errors.username)}
           helperText={formik.touched.username && formik.errors.username}
+          InputLabelProps={{ shrink: true }} 
         />
         <TextField
           disabled={!isEdit} 
@@ -235,6 +234,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.email && Boolean(formik.errors.email)}
           helperText={formik.touched.email && formik.errors.email}
+          InputLabelProps={{ shrink: true }} 
         />
         <TextField
           disabled={!isEdit} 
@@ -247,6 +247,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.phone && Boolean(formik.errors.phone)}
           helperText={formik.touched.phone && formik.errors.phone}
+          InputLabelProps={{ shrink: true }} 
         />
 
         <TextField
@@ -260,6 +261,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.password && Boolean(formik.errors.password)}
           helperText={formik.touched.password && formik.errors.password}
+          InputLabelProps={{ shrink: true }} 
         />
 
         <TextField
@@ -273,6 +275,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           onChange={formik.handleChange}
           error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
           helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+          InputLabelProps={{ shrink: true }} 
         />
 
         {isPerson && (
@@ -281,7 +284,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           margin="dense" 
           error={formik.touched.fk_person && Boolean(formik.errors.fk_person)} 
           >
-            <InputLabel id="person-select-label">Person</InputLabel>
+            <InputLabel id="person-select-label" >Person</InputLabel>
             <Select
               disabled={!isEdit} 
               labelId="person-select-label"

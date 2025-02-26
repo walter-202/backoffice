@@ -33,12 +33,14 @@ const UsersPage: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [profiles, setProfiles] = useState([]);
 
-
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const port = process.env.NEXT_PUBLIC_PORT;
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3000/users/all/data', {
+        const response = await fetch(`${baseUrl}:${port}/users/all/data`, {
           headers: {
             'Content-Type': 'application/json', 
           },
@@ -53,7 +55,7 @@ const UsersPage: React.FC = () => {
         setUsers(jsonData);
 
         const fetchProfiles = async () => {
-          const response = await fetch('http://localhost:3000/profile'); 
+          const response = await fetch(`${baseUrl}:${port}/profile`); 
           const profileData = await response.json();
           setProfiles(profileData);
         };
@@ -91,7 +93,7 @@ const UsersPage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/users/${id}`, {
+      const response = await fetch(`${baseUrl}:${port}/users/${id}`, {
         method: 'DELETE',
       });
 
@@ -110,7 +112,7 @@ const UsersPage: React.FC = () => {
   const handleSave = async (user: User) => {
     try {
       const method = user.id ? 'PUT' : 'POST';
-      const url = user.id ? `http://localhost:3000/users/${user.id}` : 'http://localhost:3000/users';
+      const url = user.id ? `${baseUrl}:${port}/users/${user.id}` : `${baseUrl}:${port}/users`;
 
       const response = await fetch(url, {
         method,
