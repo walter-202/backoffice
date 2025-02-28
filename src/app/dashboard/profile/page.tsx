@@ -32,11 +32,14 @@ const ProfilePage: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const port = process.env.NEXT_PUBLIC_PORT;
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3000/profile', {
+        const response = await fetch(`${baseUrl}:${port}/profile`, {
           headers: {
             'Content-Type': 'application/json', 
           },
@@ -82,7 +85,7 @@ const ProfilePage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/profile/${id}`, {
+      const response = await fetch(`${baseUrl}:${port}/profile/${id}`, {
         method: 'DELETE',
       });
 
@@ -101,7 +104,7 @@ const ProfilePage: React.FC = () => {
   const handleSave = async (profile: Profile) => {
     try {
       const method = profile.id ? 'PUT' : 'POST';
-      const url = profile.id ? `http://localhost:3000/profile/${profile.id}` : 'http://localhost:3000/profile';
+      const url = profile.id ? `${baseUrl}:${port}/profile/${profile.id}` : `${baseUrl}:${port}/profile`;
 
       const response = await fetch(url, {
         method,

@@ -37,6 +37,19 @@ const UsersPage: React.FC = () => {
   const port = process.env.NEXT_PUBLIC_PORT;
   
   useEffect(() => {
+
+    console.log("NEXT_PUBLIC_BASE_URL:", process.env.NEXT_PUBLIC_BASE_URL);
+    console.log("NEXT_PUBLIC_PORT:", process.env.NEXT_PUBLIC_PORT);
+    
+    
+    if (!baseUrl || !port) {
+      console.error("Variables de entorno no definidas.");
+      setError("Variables de entorno no definidas.");
+      setLoading(false);
+      return;
+  
+    }
+
     const fetchData = async () => {
       setLoading(true);
       try {
