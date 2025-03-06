@@ -80,7 +80,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
         await onDelete(categoryToDelete);
       } catch (error) {
         // Manejar error si la eliminación falla
-        console.error("Error deleting person:", error);
+        console.error("Error deleting Category:", error);
       } finally {
         setCategoryToDelete(null);
         setConfirmDeleteOpen(false);
