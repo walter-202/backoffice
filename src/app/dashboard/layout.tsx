@@ -14,10 +14,13 @@ import { useDemoRouter } from '@toolpad/core/internal';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
+import RoofingIcon from '@mui/icons-material/Roofing';
 import PeopleIcon from '@mui/icons-material/People'; 
 import SecurityIcon from '@mui/icons-material/Security'; 
 import PersonIcon from '@mui/icons-material/Person'; 
 import LockIcon from '@mui/icons-material/Lock';
+import DatasetIcon from '@mui/icons-material/Dataset';
+import CategoryIcon from '@mui/icons-material/Category';
 
 const PersonPage = dynamic(() => import('./person/page'), { ssr: false });
 const UsersPage = dynamic(() => import('./users/page'), { ssr: false });
@@ -52,6 +55,24 @@ const NAVIGATION: Navigation = [
         icon: <LockIcon />, 
       },
     ],
+  },
+  {
+    segment: 'masterData',
+    title: 'Master Data',
+    icon: <DatasetIcon /
+    >,
+    children: [
+      {
+        segment: 'category',
+        title: 'Category',
+        icon: <CategoryIcon />, 
+      },
+      {
+        segment: 'services',
+        title: 'Services',
+        icon: <RoofingIcon />, 
+      },
+    ], 
   },
 ];
 
