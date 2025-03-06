@@ -26,6 +26,8 @@ const PersonPage = dynamic(() => import('./person/page'), { ssr: false });
 const UsersPage = dynamic(() => import('./users/page'), { ssr: false });
 const ProfilePage = dynamic(() => import('./profile/page'), { ssr: false });
 const RolePage = dynamic(() => import('./role/page'), { ssr: false });
+
+const CategoryPage = dynamic(() => import('./category/page'), { ssr: false });
 const IndexPage = dynamic(() => import('./page'), { ssr: false });
 
 const NAVIGATION: Navigation = [
@@ -127,6 +129,8 @@ function DemoPageContent({ pathname }: { pathname: string }) {
   const segment = pathname.split('/').pop(); 
 
   switch (segment) {
+    case 'category':
+      return <CategoryPage />;
     case 'person':
       return <PersonPage />;
     case 'users':
