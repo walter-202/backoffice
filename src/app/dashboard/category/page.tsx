@@ -85,7 +85,7 @@ const ProfilePage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(`${baseUrl}:${port}/profile/${id}`, {
+      const response = await fetch(`${baseUrl}:${port}/category/${id}`, {
         method: 'DELETE',
       });
 
@@ -122,10 +122,10 @@ const ProfilePage: React.FC = () => {
       
       if (method === 'POST') {
         setCategories([...categories, updatedCategory]);
-        showSnackbar('Profile created successfully', 'success');
+        showSnackbar('Category created successfully', 'success');
       } else {
         setCategories(categories.map((p) => (p.id === updatedCategory.id ? updatedCategory : p)));
-        showSnackbar('Profile successfully updated', 'success');
+        showSnackbar('Category successfully updated', 'success');
       }
 
       setOpen(false);
