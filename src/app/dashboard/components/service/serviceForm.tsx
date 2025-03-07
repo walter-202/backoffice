@@ -17,6 +17,7 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Service } from '../../../interface/service';
+import { Description } from '@mui/icons-material';
 
 interface PersonFormProps {
   open: boolean;
@@ -40,15 +41,11 @@ const PersonForm: React.FC<PersonFormProps> = ({ open, isEdit, onClose, service,
     event.preventDefault();
   };
   
-  const initialValues: Person = {
+  const initialValues: Service = {
     id: 0, 
-    first_name: '',
-    middle_name: '',
-    last_name: '',
-    address: '',
-    date_of_birth: null,
-    email: '', 
-    phone: '', 
+    name: '',
+    description: '',
+    fk_category: '',
     createdAt: '', 
     updatedAt: '', 
   }
@@ -59,13 +56,13 @@ useEffect(() => {
   if (open) {
     formik.resetForm(); 
     formik.setTouched({}); 
-    if (person) {
-      formik.setValues({ ...initialValues, ...person });
+    if (service) {
+      formik.setValues({ ...initialValues, ...service });
     } else {
       formik.setValues(initialValues); 
     }
   }
-}, [open, isEdit, person]);
+}, [open, isEdit, service]);
 
 const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
   setSnackbarMessage(message);
@@ -74,10 +71,9 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 };
 
   const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required('First Name is required').nullable(),
-    last_name: Yup.string().required('Last Name is required').nullable(),
-    email: Yup.string().required('Email is required').nullable(),
-    phone: Yup.string().required('Phone is required').nullable(),
+    name: Yup.string().required('Name is required').nullable(),
+    Description: Yup.string().required('Description is required').nullable(),
+    category: Yup.string().required('Category is required').nullable(),
   });
 
   
@@ -91,101 +87,52 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{person?.id ? 'Edit Person' : 'Add New Person'}</DialogTitle>
+      <DialogTitle>{service?.id ? 'Edit Service' : 'Add New Service'}</DialogTitle>
       <DialogContent>
       <form onSubmit={formik.handleSubmit}>
         <TextField
           autoFocus
           disabled={!isEdit} 
           margin="dense"
-          name="first_name"
-          label="First Name"
+          name="name"
+          label="Name"
           type="text"
           fullWidth
-          value={formik.values.first_name}
+          value={formik.values.name}
           onChange={formik.handleChange}
-          error={formik.touched.first_name && Boolean(formik.errors.first_name)}
-          helperText={formik.touched.first_name && formik.errors.first_name}
+          error={formik.touched.name && Boolean(formik.errors.name)}
+          helperText={formik.touched.name && formik.errors.name}
           InputLabelProps={{ shrink: true }} 
         />
          <TextField
           disabled={!isEdit} 
           margin="dense"
-          name="middle_name"
+          name="description"
           label="Middle Name"
           type="text"
           fullWidth
-          value={formik.values.middle_name}
+          value={formik.values.description}
           onChange={formik.handleChange}
+          error={formik.touched.description && Boolean(formik.errors.description)}
+          helperText={formik.touched.description && formik.errors.description}
           InputLabelProps={{ shrink: true }} 
         />
 
           <TextField
           disabled={!isEdit} 
           margin="dense"
-          name="last_name"
-          label="Last Name"
+          name="category"
+          label="Category"
           type="text"
           fullWidth
-          value={formik.values.last_name}
+          value={formik.values.fk_category}
           onChange={formik.handleChange}
-          error={formik.touched.last_name && Boolean(formik.errors.last_name)}
-          helperText={formik.touched.last_name && formik.errors.last_name}
+          error={formik.touched.fk_category && Boolean(formik.errors.fk_category)}
+          helperText={formik.touched.fk_category && formik.errors.fk_category}
           InputLabelProps={{ shrink: true }} 
         />
         
-        <TextField
-          disabled={!isEdit} 
-          margin="dense"
-          name="address"
-          label="Address"
-          type="text"
-          fullWidth
-          value={formik.values.address}
-          onChange={formik.handleChange}
-          InputLabelProps={{ shrink: true }} 
-        />
-
-        <TextField
-          disabled={!isEdit} 
-          margin="dense"
-          name="date_of_birth"
-          label="Date Of Birth"
-          type="date"
-          fullWidth
-          value={formik.values.date_of_birth}
-          onChange={formik.handleChange}
-          InputLabelProps={{ shrink: true }} 
-        />
-
-          <TextField
-          disabled={!isEdit} 
-          margin="dense"
-          name="email"
-          label="Email"
-          type="text"
-          fullWidth
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          InputLabelProps={{ shrink: true }} 
-        />
-
-        <TextField
-          disabled={!isEdit} 
-          margin="dense"
-          name="phone"
-          label="Phone"
-          type="text"
-          fullWidth
-          value={formik.values.phone}
-          onChange={formik.handleChange}
-          error={formik.touched.phone && Boolean(formik.errors.phone)}
-          helperText={formik.touched.phone && formik.errors.phone}
-          InputLabelProps={{ shrink: true }} 
-        />
-
+     
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
            {isEdit && (
