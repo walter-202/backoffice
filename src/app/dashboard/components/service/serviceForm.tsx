@@ -16,7 +16,8 @@ import {
 } from '@mui/material'; 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Service } from '../../../interface/service';
+import { Service } from '../../../interface/serviceData';
+import { Category } from '../../../interface/category';
 import { Description } from '@mui/icons-material';
 
 interface PersonFormProps {
@@ -33,13 +34,11 @@ const PersonForm: React.FC<PersonFormProps> = ({ open, isEdit, onClose, service,
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
-  const [isPerson, setIsPerson] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
-
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  };
+  const [category, setCategory] = useState<Category[]>([]);
+  const [isCategory, setIsCategory] = useState(false);
+  
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const port = process.env.NEXT_PUBLIC_PORT;
   
   const initialValues: Service = {
     id: 0, 
@@ -48,6 +47,12 @@ const PersonForm: React.FC<PersonFormProps> = ({ open, isEdit, onClose, service,
     fk_category: '',
     createdAt: '', 
     updatedAt: '', 
+    category: {
+      id: 0,
+      name: '',
+      createdAt: '',
+      updatedAt: '', 
+    }
   }
   
   const [formValues, setFormValues] = useState(initialValues);
@@ -64,6 +69,37 @@ useEffect(() => {
   }
 }, [open, isEdit, service]);
 
+useEffect(() => {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+
+      const categoryResponse = await fetch(`${baseUrl}:${port}/category`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!categoryResponse.ok) {
+        const errorText = await categoryResponse.text();
+        throw new Error(`Error HTTP! status: ${categoryResponse.status}, mensaje: ${errorText || 'Sin mensaje'}`);
+      }
+
+      const categoryData = await categoryResponse.json();
+      setCategory(categoryData); 
+      setIsCategory(true);
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Error getting data:', err);
+      showSnackbar(`Error getting data: ${err.message}`, 'error'); 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
 const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
   setSnackbarMessage(message);
   setSnackbarSeverity(severity);
@@ -72,8 +108,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required').nullable(),
-    Description: Yup.string().required('Description is required').nullable(),
-    category: Yup.string().required('Category is required').nullable(),
+    fk_category: Yup.string().required('Category is required').nullable(),
   });
 
   
@@ -108,7 +143,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           disabled={!isEdit} 
           margin="dense"
           name="description"
-          label="Middle Name"
+          label="Description"
           type="text"
           fullWidth
           value={formik.values.description}
@@ -118,21 +153,40 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           InputLabelProps={{ shrink: true }} 
         />
 
-          <TextField
-          disabled={!isEdit} 
-          margin="dense"
-          name="category"
-          label="Category"
-          type="text"
-          fullWidth
-          value={formik.values.fk_category}
-          onChange={formik.handleChange}
-          error={formik.touched.fk_category && Boolean(formik.errors.fk_category)}
-          helperText={formik.touched.fk_category && formik.errors.fk_category}
-          InputLabelProps={{ shrink: true }} 
-        />
-        
-     
+        {isCategory && (
+          <FormControl 
+          fullWidth 
+          margin="dense" 
+          error={formik.touched.fk_category && Boolean(formik.errors.fk_category)} 
+          >
+            <InputLabel id="person-select-label" >Category</InputLabel>
+            <Select
+              disabled={!isEdit} 
+              labelId="category-select-label"
+              id="category-select"
+              name="fk_category"
+              value={formik.values.fk_category}
+              label="Category"
+              onChange={formik.handleChange}
+            >
+              {loading ? (
+                <MenuItem value="">Loading...</MenuItem>
+              ) : error ? (
+                <MenuItem value="">Error: {error}</MenuItem>
+              ) : category.length === 0 ? (
+                <MenuItem value="">No category available</MenuItem>
+              ) : (
+                category.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {`${p.name}`}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+            <FormHelperText>{formik.touched.fk_category && formik.errors.fk_category}</FormHelperText> 
+          </FormControl>
+        )}
+    
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
            {isEdit && (

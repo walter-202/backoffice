@@ -18,7 +18,7 @@ import {
   Button
 } from '@mui/material';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
-import { Service } from '../../../interface/service'; 
+import { Service } from '../../../interface/serviceData'; 
 import { ChangeEvent, MouseEvent } from 'react';
 
 interface ServiceTableProps {
@@ -97,7 +97,7 @@ const ServicesTable: React.FC<ServiceTableProps> = ({
       <Table>
         <TableHead>
           <TableRow>
-            {['ID', 'Name', 'Actions'].map((header) => (
+            {['ID', 'Name', 'Category','Actions'].map((header) => (
               <TableCell key={header}>
                 {header === 'actions' ? (
                   'Actions'
@@ -117,9 +117,9 @@ const ServicesTable: React.FC<ServiceTableProps> = ({
         <TableBody>
           {paginatedService.map((service) => (
             <TableRow key={service.id}>
+              <TableCell>{service.id }</TableCell>
               <TableCell>{service.name }</TableCell>
-              <TableCell>{service.description }</TableCell>
-              <TableCell>{service.fk_category }</TableCell>
+              <TableCell>{service.category.name }</TableCell>
               <TableCell>
                 <IconButton color="primary" onClick={() => onView(service)}>
                  <FaEye />

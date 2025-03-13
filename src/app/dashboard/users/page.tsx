@@ -47,7 +47,6 @@ const UsersPage: React.FC = () => {
       setError("Variables de entorno no definidas.");
       setLoading(false);
       return;
-  
     }
 
     const fetchData = async () => {

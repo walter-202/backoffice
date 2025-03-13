@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { ServiceTable, ServiceForm } from '../components/service';
-import { Service } from '../../interface/service';
+import { Service } from '../../interface/serviceData';
 import { ChangeEvent, MouseEvent } from 'react'; 
 
 
@@ -39,7 +39,7 @@ const ProfilePage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${baseUrl}:${port}/category`, {
+        const response = await fetch(`${baseUrl}:${port}/service/all/data`, {
           headers: {
             'Content-Type': 'application/json', 
           },
@@ -85,7 +85,7 @@ const ProfilePage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const response = await fetch(`${baseUrl}:${port}/profile/${id}`, {
+      const response = await fetch(`${baseUrl}:${port}/service/${id}`, {
         method: 'DELETE',
       });
 
@@ -94,17 +94,17 @@ const ProfilePage: React.FC = () => {
       }
 
       setServices(services.filter((category) => category.id !== id));
-      showSnackbar('Successfully deleted Category', 'success');
+      showSnackbar('Successfully deleted Service', 'success');
     } catch (error: any) {
-      console.error('Error when deleting Category: ', error);
-      showSnackbar('Error deleting Category', 'error');
+      console.error('Error when deleting Service: ', error);
+      showSnackbar('Error deleting Service', 'error');
     }
   };
 
   const handleSave = async (service: Service) => {
     try {
       const method = service.id ? 'PUT' : 'POST';
-      const url = service.id ? `${baseUrl}:${port}/category/${service.id}` : `${baseUrl}:${port}/category`;
+      const url = service.id ? `${baseUrl}:${port}/service/${service.id}` : `${baseUrl}:${port}/service`;
 
       const response = await fetch(url, {
         method,
@@ -118,13 +118,13 @@ const ProfilePage: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const updatedCategory = await response.json();
+      const updatedService = await response.json();
       
       if (method === 'POST') {
-        setServices([...services, updatedCategory]);
+        setServices([...services, updatedService]);
         showSnackbar('Profile created successfully', 'success');
       } else {
-        setServices(services.map((p) => (p.id === updatedCategory.id ? updatedCategory : p)));
+        setServices(services.map((p) => (p.id === updatedService.id ? updatedService : p)));
         showSnackbar('Profile successfully updated', 'success');
       }
 
