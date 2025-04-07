@@ -3,6 +3,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import ChairAltIcon from '@mui/icons-material/ChairAlt';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -20,6 +21,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import PersonIcon from '@mui/icons-material/Person'; 
 import LockIcon from '@mui/icons-material/Lock';
 import DatasetIcon from '@mui/icons-material/Dataset';
+import ListRequest from '@/app/dashboard/request/page'
 import CategoryIcon from '@mui/icons-material/Category';
 
 
@@ -34,6 +36,11 @@ const CategoryPage = dynamic(() => import('./category/page'), { ssr: false });
 const IndexPage = dynamic(() => import('./page'), { ssr: false });
 
 const NAVIGATION: Navigation = [
+  {
+    segment: 'requests',
+    title: 'requests',
+    icon: <ChairAltIcon />,
+  },
   {
     segment: 'person',
     title: 'person',
@@ -64,20 +71,19 @@ const NAVIGATION: Navigation = [
   {
     segment: 'masterData',
     title: 'Master Data',
-    icon: <DatasetIcon /
-    >,
+    icon: <DatasetIcon />,
     children: [
       {
         segment: 'category',
         title: 'Category',
-        icon: <CategoryIcon />, 
+        icon: <CategoryIcon />,
       },
       {
         segment: 'services',
         title: 'Services',
-        icon: <RoofingIcon />, 
+        icon: <RoofingIcon />,
       },
-    ], 
+    ],
   },
 ];
 
@@ -92,35 +98,35 @@ const getDesignTokens = (mode: 'light' | 'dark') => ({
             contrastText: '#fff',
           },
           secondary: {
-            main: '#ce93d8', 
-            contrastText: '#fff', 
+            main: '#ce93d8',
+            contrastText: '#fff',
           },
           background: {
-            default: '#fff', 
-            paper: '#f5f5f5', 
+            default: '#fff',
+            paper: '#f5f5f5',
           },
           text: {
             primary: '#212121',
-            secondary: '#757575', 
+            secondary: '#757575',
           },
         }
       : {
           // Paleta de colores para el tema oscuro
           primary: {
             main: '#5c6bc0',
-            contrastText: '#fff', 
+            contrastText: '#fff',
           },
           secondary: {
-            main: '#ab47bc', 
-            contrastText: '#fff', 
+            main: '#ab47bc',
+            contrastText: '#fff',
           },
           background: {
-            default: '#121212', 
+            default: '#121212',
             paper: '#1e1e1e',
           },
           text: {
-            primary: '#fff', 
-            secondary: '#9e9e9e', 
+            primary: '#fff',
+            secondary: '#9e9e9e',
           },
         }),
   },
@@ -129,7 +135,7 @@ const getDesignTokens = (mode: 'light' | 'dark') => ({
 const demoTheme = (mode: 'light' | 'dark') => createTheme(getDesignTokens(mode));
 
 function DemoPageContent({ pathname }: { pathname: string }) {
-  const segment = pathname.split('/').pop(); 
+  const segment = pathname.split('/').pop();
 
   switch (segment) {
     case 'services':
@@ -144,6 +150,8 @@ function DemoPageContent({ pathname }: { pathname: string }) {
       return <ProfilePage />;
     case 'role':
       return <RolePage />;
+      case 'requests':
+      return <ListRequest />;
     default:
       return <IndexPage />;
   }
