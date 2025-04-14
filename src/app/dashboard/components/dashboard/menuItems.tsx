@@ -19,7 +19,7 @@ const menuItems = [
     {
       label: 'ACTIVITI BOX',
       icon: <PeopleIcon style={{ fontSize: iconSmall }} />,
-      href: '/usuarios',
+      href: '/users',
     },
     {
       label: 'MARKETING',
@@ -47,8 +47,8 @@ const menuItems = [
       label: 'SETTINGS',
       icon: <TuneIcon style={{ fontSize: iconSmall }} />,
       subItems: [
-        { label: 'Category', icon: <CategoryIcon style={{ fontSize: iconSmallSubItems }} />, href: '/cms/editor' },
-        { label: 'Sub-Category', icon: <ClassIcon style={{ fontSize: iconSmallSubItems }} />, href: '/cms/media' },
+        { label: 'Category', icon: <CategoryIcon style={{ fontSize: iconSmallSubItems }} />, href: '/dashboard/settings/category' },
+        { label: 'Sub-Category', icon: <ClassIcon style={{ fontSize: iconSmallSubItems }} />, href: '/dashboard/settings/subcategory' },
         { label: 'Service / Add-On ', icon: <FormatListBulletedIcon style={{ fontSize: iconSmallSubItems }} />, href: '/cms/media' },
       ],
     },

@@ -128,7 +128,7 @@ const StyledListItemButton = styled(ListItemButton, {
   }),
   '&:hover': {
     backgroundColor: theme.palette.primary.main,
-    transform: 'translateX(10px)',
+    transform: 'translateX(10spx)',
     '& .MuiListItemIcon-root': {
       color: theme.palette.text.primary,
     },
@@ -185,7 +185,7 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme} >
       <Box sx={{ display: 'flex' }}>
         <AppBarStyled position="fixed" open={open}>
           <Toolbar>

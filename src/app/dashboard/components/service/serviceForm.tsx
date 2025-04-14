@@ -122,7 +122,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{service?.id ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+      <DialogTitle>{service?.id ? 'Edit Sub-Category' : 'Add New Sub-Category'}</DialogTitle>
       <DialogContent>
       <form onSubmit={formik.handleSubmit}>
         <TextField
