@@ -1,190 +1,293 @@
 'use client';
-import * as React from 'react';
+
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { styled, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
+import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LayersIcon from '@mui/icons-material/Layers';
-import { AppProvider, type Navigation } from '@toolpad/core/AppProvider';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { useDemoRouter } from '@toolpad/core/internal';
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Avatar from '@mui/material/Avatar';
+import Badge from '@mui/material/Badge';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import CallIcon from '@mui/icons-material/Call';
+import Image from 'next/image';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { Switch } from '@mui/material';
+import lightTheme from '../styles/lightTheme';
+import darkTheme from '../styles/darkTheme';
+import menuItems from './components/dashboard/menuItems';
 
-import RoofingIcon from '@mui/icons-material/Roofing';
-import PeopleIcon from '@mui/icons-material/People'; 
-import SecurityIcon from '@mui/icons-material/Security'; 
-import PersonIcon from '@mui/icons-material/Person'; 
-import LockIcon from '@mui/icons-material/Lock';
-import DatasetIcon from '@mui/icons-material/Dataset';
-import CategoryIcon from '@mui/icons-material/Category';
+const drawerWidth = 220;
+const collapsedWidth = 60;
+const transitionDuration = 0.3;
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+    paddingTop: theme.spacing(8),
+    height: '100vh',
+    minHeight: '100vh',
+    backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #303030, #424242)' : 'linear-gradient(to bottom, #f9f9f9, #F7F7F7)',
+    ...(open && { [theme.breakpoints.up('sm')]: { marginLeft: drawerWidth } }),
+    ...(!open && { [theme.breakpoints.up('sm')]: { marginLeft: collapsedWidth } }),
+  })
+);
+
+const AppBarStyled = styled(AppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  transition: theme.transitions.create(['margin', 'width'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #303030, #424242)' : 'linear-gradient(to bottom, #f9f9f9, #F7F7F7)',
+  color: theme.palette.text.secondary,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  boxShadow: theme.shadows[1],
+  ...(open && {
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: `${drawerWidth}px`,
+    },
+  }),
+  ...(!open && {
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${collapsedWidth}px)`,
+      marginLeft: `${collapsedWidth}px`,
+    },
+  }),
+}));
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+  justifyContent: 'flex-end',
+}));
+
+//Estilos del menu
+const GradientDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    '& .MuiDrawer-paper': {
+      width: open ? drawerWidth : collapsedWidth,
+      backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #212121, #424242)' : 'linear-gradient(to bottom, #151524, #262645)',
+      color: theme.palette.text.contrast,
+      borderRight: `5px solid ${theme.palette.divider}`,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      overflowX: 'hidden',
+      [theme.breakpoints.up('sm')]: {
+        width: open ? drawerWidth : collapsedWidth,
+      },
+    },
+  })
+);
 
 
-const PersonPage = dynamic(() => import('./person/page'), { ssr: false });
-const UsersPage = dynamic(() => import('./users/page'), { ssr: false });
-const ProfilePage = dynamic(() => import('./profile/page'), { ssr: false });
-const RolePage = dynamic(() => import('./role/page'), { ssr: false });
-const ServicePage = dynamic(() => import('./services/page'), { ssr: false });
-
-
-const CategoryPage = dynamic(() => import('./category/page'), { ssr: false });
-const IndexPage = dynamic(() => import('./page'), { ssr: false });
-
-const NAVIGATION: Navigation = [
-  {
-    segment: 'person',
-    title: 'person',
-    icon: <PeopleIcon />, 
+const StyledListItemButton = styled(ListItemButton, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  justifyContent: open ? 'initial' : 'center',
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+  marginBottom: theme.spacing(0.5),
+  borderRadius: '8px',
+  transition: theme.transitions.create(['background-color', 'transform'], { 
+    duration: transitionDuration,
+  }),
+  '&:hover': {
+    backgroundColor: theme.palette.primary.main,
+    transform: 'translateX(10px)',
+    '& .MuiListItemIcon-root': {
+      color: theme.palette.text.primary,
+    },
+    '& .MuiListItemText-root': {
+      color: theme.palette.text.primary,
+    },
+    '& .MuiTypography-root': { 
+      fontWeight: 'bold',
+    },
   },
-  {
-    segment: 'security',
-    title: 'Security',
-    icon: <SecurityIcon />, 
-    children: [
-      {
-        segment: 'users',
-        title: 'Users',
-        icon: <PersonIcon />, 
-      },
-      {
-        segment: 'profile',
-        title: 'Profile',
-        icon: <PersonIcon />, 
-      },
-      {
-        segment: 'role',
-        title: 'Role',
-        icon: <LockIcon />, 
-      },
-    ],
+  '& .MuiListItemIcon-root': {
+    minWidth: 0,
+    marginRight: open ? theme.spacing(3) : 'auto',
+    justifyContent: 'center',
+    color: theme.palette.common.white,
+    transition: theme.transitions.create('margin-right', {
+      duration: transitionDuration,
+    }),
   },
-  {
-    segment: 'masterData',
-    title: 'Master Data',
-    icon: <DatasetIcon /
-    >,
-    children: [
-      {
-        segment: 'category',
-        title: 'Category',
-        icon: <CategoryIcon />, 
-      },
-      {
-        segment: 'services',
-        title: 'Services',
-        icon: <RoofingIcon />, 
-      },
-    ], 
+  '& .MuiListItemText-root': {
+    opacity: open ? 1 : 0,
+    color: theme.palette.text.contrast, 
+    transition: theme.transitions.create('opacity', {
+      duration: transitionDuration,
+    }),
   },
-];
+}));
 
+const DashboardLayout = ({ children }) => {
+  const theme = useTheme();
+  const [open, setOpen] = useState(true);
+  const [openSubMenu, setOpenSubMenu] = useState({});
+  const router = useRouter();
+  const [darkMode, setDarkMode] = useState(false);
 
-const getDesignTokens = (mode: 'light' | 'dark') => ({
-  palette: {
-    mode,
-    ...(mode === 'light'
-      ? {
-          primary: {
-            main: '#90caf9',
-            contrastText: '#fff',
-          },
-          secondary: {
-            main: '#ce93d8', 
-            contrastText: '#fff', 
-          },
-          background: {
-            default: '#fff', 
-            paper: '#f5f5f5', 
-          },
-          text: {
-            primary: '#212121',
-            secondary: '#757575', 
-          },
-        }
-      : {
-          // Paleta de colores para el tema oscuro
-          primary: {
-            main: '#5c6bc0',
-            contrastText: '#fff', 
-          },
-          secondary: {
-            main: '#ab47bc', 
-            contrastText: '#fff', 
-          },
-          background: {
-            default: '#121212', 
-            paper: '#1e1e1e',
-          },
-          text: {
-            primary: '#fff', 
-            secondary: '#9e9e9e', 
-          },
-        }),
-  },
-});
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
 
-const demoTheme = (mode: 'light' | 'dark') => createTheme(getDesignTokens(mode));
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
-function DemoPageContent({ pathname }: { pathname: string }) {
-  const segment = pathname.split('/').pop(); 
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
-  switch (segment) {
-    case 'services':
-      return <ServicePage />;
-    case 'category':
-      return <CategoryPage />;
-    case 'person':
-      return <PersonPage />;
-    case 'users':
-      return <UsersPage />;
-    case 'profile':
-      return <ProfilePage />;
-    case 'role':
-      return <RolePage />;
-    default:
-      return <IndexPage />;
-  }
-}
+  const handleClick = (label) => {
+    setOpenSubMenu({ ...openSubMenu, [label]: !openSubMenu[label] });
+  };
 
-interface DemoProps {
-  window?: () => Window;
-}
-
-export default function DashboardLayoutBasic(props: DemoProps) {
-  const { window } = props;
-  const router = useDemoRouter('/dashboard');
-  const demoWindow = window !== undefined ? window() : undefined;
-
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
-
-  useEffect(() => {
-    const storedMode = localStorage.getItem('themeMode') as 'light' | 'dark' | null;
-    if (storedMode) {
-      setMode(storedMode);
-    } else {
-      const toolpadColorScheme = document.querySelector('[data-toolpad-color-scheme]')?.getAttribute('data-toolpad-color-scheme');
-      setMode(toolpadColorScheme === 'dark' ? 'dark' : 'light');
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('themeMode', mode);
-  }, [mode]);
+  const toggleMenu = () => {
+    setOpen(!open);
+  };
 
   return (
-    <AppProvider
-      navigation={NAVIGATION}
-      router={router}
-      window={demoWindow}
-    >
-      <ThemeProvider theme={demoTheme(mode)}>
-        <DashboardLayout>
-          <DemoPageContent pathname={router.pathname} />
-        </DashboardLayout>
-      </ThemeProvider>
-    </AppProvider>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <Box sx={{ display: 'flex' }}>
+        <AppBarStyled position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ mr: 2, ...(open && { display: { xs: 'block', sm: 'none' } }) }}
+            >
+            </IconButton>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+              <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  TNB - WorkSpaces
+                </Typography>
+              </Link>
+            </Box>
+            <IconButton color="inherit">
+              <Badge badgeContent={4} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton color="inherit">
+              <CallIcon sx={{ mr: { xs: 0, sm: 1 } }} />
+            </IconButton>
+            <Typography sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>Johann Gonzalez</Typography>
+            <IconButton color="inherit">
+              <AccountCircle />
+            </IconButton>
+            <IconButton onClick={toggleDarkMode} color="inherit">
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Toolbar>
+        </AppBarStyled>
+        <GradientDrawer variant="permanent" open={open}>
+          <DrawerHeader sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={toggleMenu}>
+              {open ? <ChevronLeftIcon sx={{ color: theme.palette.common.white }} /> : <MenuIcon sx={{ color: theme.palette.common.white }} />}
+            </IconButton>
+            {open && (
+              <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+                <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', height: 'auto' }}>
+                  <Image
+                    src="/images/icon-tnb.png"
+                    alt="ServiFy Logo"
+                    height={20}
+                    width={50}
+                    style={{ display: 'block' }}
+                  />
+                </Link>
+              </Box>
+            )}
+          </DrawerHeader>
+          <List>
+            {menuItems.map((item) => (
+              <React.Fragment key={item.label}>
+                <ListItem disablePadding sx={{ display: 'block' }}>
+                  <StyledListItemButton
+                    component={item.href ? Link : 'div'}
+                    href={item.href}
+                    onClick={item.subItems ? () => handleClick(item.label) : undefined}
+                    open={open}
+                  >
+                    <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}> 
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.label} />
+                    {item.subItems && open && (openSubMenu[item.label] ? <ExpandLess sx={{ color: theme.palette.common.white }} /> : <ExpandMore sx={{ color: theme.palette.common.white }} />)}
+                  </StyledListItemButton>
+                </ListItem>
+                {item.subItems && open && (
+                  <Collapse in={openSubMenu[item.label]} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {item.subItems.map((subItem) => (
+                        <ListItem key={subItem.label} disablePadding>
+                          <StyledListItemButton
+                            component={Link}
+                            href={subItem.href}
+                            sx={{ pl: 4 }}
+                            open={open}
+                          >
+                            <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}> 
+                              {subItem.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={subItem.label} />
+                          </StyledListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Collapse>
+                )}
+              </React.Fragment>
+            ))}
+          </List>
+        </GradientDrawer>
+        <Main open={open}>
+          {children}
+        </Main>
+      </Box>
+    </ThemeProvider>
   );
-}
+};
+
+export default DashboardLayout;
