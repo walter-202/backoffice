@@ -51,7 +51,6 @@ const CategoryPage: React.FC = () => {
           const errorText = await response.text(); 
           throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`);
         }
-  
         const jsonData = await response.json();
         setCategories(jsonData);
 
@@ -95,7 +94,7 @@ const CategoryPage: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setCategories(categories.filter((category) => category.id !== id));
+      setCategories(categories.filter((category) => category.pkCategory !== id));
       showSnackbar('Successfully deleted Category', 'success');
     } catch (error: any) {
       console.error('Error when deleting Category: ', error);
@@ -103,10 +102,12 @@ const CategoryPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (category: Category) => {
+const handleSave = async (category: Category) => {
     try {
-      const method = category.id ? 'PUT' : 'POST';
-      const url = category.id ? `${baseUrl}:${port}/category/${category.id}` : `${baseUrl}:${port}/category`;
+      const method = category.pkCategory ? 'PATCH' : 'POST';
+      const url = category.pkCategory ? `${baseUrl}:${port}/category/${category.pkCategory}` : `${baseUrl}:${port}/category`;
+
+      console.log("Categoria: "+JSON.stringify(category))
 
       const response = await fetch(url, {
         method,
@@ -121,12 +122,12 @@ const CategoryPage: React.FC = () => {
       }
 
       const updatedCategory = await response.json();
-      
+
       if (method === 'POST') {
         setCategories([...categories, updatedCategory]);
         showSnackbar('Category created successfully', 'success');
       } else {
-        setCategories(categories.map((p) => (p.id === updatedCategory.id ? updatedCategory : p)));
+        setCategories(categories.map((p) => (p.pkCategory === updatedCategory.pkCategory ? updatedCategory : p)));
         showSnackbar('Category successfully updated', 'success');
       }
 

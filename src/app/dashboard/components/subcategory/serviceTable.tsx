@@ -18,13 +18,13 @@ import {
   Button
 } from '@mui/material';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
-import { Category } from '../../../interface/category'; 
+import { Service } from '../../../interface/serviceData'; 
 import { ChangeEvent, MouseEvent } from 'react';
 
-interface CategoryTableProps {
-  categories: Category[];
-  onEdit: (category: Category) => void;
-  onView: (category: Category) => void;
+interface ServiceTableProps {
+  services: Service[];
+  onEdit: (service: Service) => void;
+  onView: (service: Service) => void;
   onDelete: (id: number) => Promise<void>;
   orderBy: string;
   order: 'asc' | 'desc';
@@ -38,8 +38,8 @@ interface CategoryTableProps {
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
-const CategoryTable: React.FC<CategoryTableProps> = ({
-  categories,
+const ServicesTable: React.FC<ServiceTableProps> = ({
+  services,
   onView,
   onEdit,
   onDelete,
@@ -52,46 +52,44 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
   handleChangeRowsPerPage,
  searchQuery,
 }) => {
-  const filteredCategory = categories.filter((category) => {
+  const filteredServices = services.filter((service) => {
     const lowerCaseSearch = searchQuery.toLowerCase();
     return (
-      category.name.toLowerCase()?.includes(lowerCaseSearch)  
+      service.name.toLowerCase()?.includes(lowerCaseSearch)  
     );
   });
 
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [viewCategory, setViewCategory] = useState<Category | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
+  const [serviceToDelete, setServiceToDelete] = useState<number | null>(null);
  
-  const sortedCategory = [...filteredCategory].sort((a, b) => {
+  const sortedService = [...filteredServices].sort((a, b) => {
     const isAsc = orderBy === a.name && order === 'asc'; // Ordenar por nombre por defecto
     return isAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
   });
 
   const handleDeleteConfirmation = (id: number) => {
-    setCategoryToDelete(id);
+    setServiceToDelete(id);
     setConfirmDeleteOpen(true);
   };
 
  const handleDelete = async () => {
-    if (categoryToDelete) {
+    if (serviceToDelete) {
       try {
-        await onDelete(categoryToDelete);
+        await onDelete(serviceToDelete);
       } catch (error) {
         // Manejar error si la eliminación falla
-        console.error("Error deleting Category:", error);
+        console.error("Error deleting person:", error);
       } finally {
-        setCategoryToDelete(null);
+        setServiceToDelete(null);
         setConfirmDeleteOpen(false);
       }
     }
   };
-  const paginatedCategory = sortedCategory.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedService = sortedService.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleCloseDeleteConfirmation = () => {
     setConfirmDeleteOpen(false);
-    setCategoryToDelete(null);
+    setServiceToDelete(null);
   };
 
   return (
@@ -99,7 +97,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
       <Table>
         <TableHead>
           <TableRow>
-            {['ID', 'Name', 'Actions'].map((header) => (
+            {['ID', 'Name', 'Category','Actions'].map((header) => (
               <TableCell key={header}>
                 {header === 'actions' ? (
                   'Actions'
@@ -117,18 +115,19 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {paginatedCategory.map((category) => (
-            <TableRow key={category.pkCategory}>
-              <TableCell>{category.pkCategory }</TableCell>
-              <TableCell>{category.name }</TableCell>
+          {paginatedService.map((service) => (
+            <TableRow key={service.id}>
+              <TableCell>{service.id }</TableCell>
+              <TableCell>{service.name }</TableCell>
+              <TableCell>{service.category.name }</TableCell>
               <TableCell>
-                <IconButton color="primary" onClick={() => onView(category)}>
+                <IconButton color="primary" onClick={() => onView(service)}>
                  <FaEye />
                 </IconButton>
-                <IconButton color="secondary" onClick={() => onEdit(category)}>
+                <IconButton color="secondary" onClick={() => onEdit(service)}>
                   <FaEdit style={{ color: 'green' }} />
                 </IconButton>
-                <IconButton color="error" onClick={() => handleDeleteConfirmation(category.pkCategory)}> 
+                <IconButton color="error" onClick={() => handleDeleteConfirmation(service.id)}> 
                   <FaTrash />
                 </IconButton>
               </TableCell>
@@ -138,7 +137,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
       </Table>
       <TablePagination
         component="div"
-        count={filteredCategory.length}
+        count={filteredServices.length}
         page={page}
         onPageChange={handleChangePage} 
         rowsPerPage={rowsPerPage}
@@ -154,7 +153,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
       >
         <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
         <DialogContent>
-          {"Are you sure you want to delete this Category?"}
+          {"Are you sure you want to delete this Service?"}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteConfirmation}>Cancel</Button>
@@ -168,4 +167,4 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
   );
 };
 
-export default CategoryTable;
+export default ServicesTable;

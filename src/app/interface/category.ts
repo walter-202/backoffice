@@ -1,5 +1,5 @@
 export interface Category {
-    id: number;
+    pkCategory: number;
     name: string;
     createdAt: string | null;
     updatedAt: string | null; 

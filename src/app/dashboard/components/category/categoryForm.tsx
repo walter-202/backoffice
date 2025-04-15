@@ -30,7 +30,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ open, isEdit, onClose, cate
   const [isCategory, setIsCategory] = useState(false);
   
   const initialValues: Category = {
-    id: 0, 
+    pkCategory: 0, 
     name: '',
     createdAt: '', 
     updatedAt: '', 
@@ -70,7 +70,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{category?.id ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+      <DialogTitle>{category?.pkCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
       <DialogContent>
       <form onSubmit={formik.handleSubmit}>
         <TextField
