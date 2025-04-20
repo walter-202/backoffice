@@ -32,6 +32,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ open, isEdit, onClose, cate
   const initialValues: Category = {
     pkCategory: 0, 
     name: '',
+    description: '',
     createdAt: '', 
     updatedAt: '', 
   }
@@ -58,6 +59,7 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required').nullable(),
+    description: Yup.string().required('Description is required').nullable(),
    });
   
   const formik = useFormik({
@@ -87,6 +89,21 @@ const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 
           helperText={formik.touched.name && formik.errors.name}
           InputLabelProps={{ shrink: true }} 
         />
+         <TextField
+            margin="dense"
+            name="description"
+            label="Description"
+            type="text"
+            disabled={!isEdit} 
+            fullWidth
+            multiline 
+            rows={3} 
+            value={formik.values.description}
+            onChange={formik.handleChange}
+            error={formik.touched.description && Boolean(formik.errors.description)}
+            helperText={formik.touched.description && formik.errors.description}
+            InputLabelProps={{ shrink: true }}
+          />
         
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>

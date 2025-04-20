@@ -41,7 +41,7 @@ const CategoryPage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${baseUrl}:${port}/category`, {
+        const response = await fetch(`${baseUrl}:${port}/category/findAll`, {
           headers: {
             'Content-Type': 'application/json', 
           },
@@ -103,41 +103,57 @@ const CategoryPage: React.FC = () => {
   };
 
 const handleSave = async (category: Category) => {
-    try {
-      const method = category.pkCategory ? 'PATCH' : 'POST';
-      const url = category.pkCategory ? `${baseUrl}:${port}/category/${category.pkCategory}` : `${baseUrl}:${port}/category`;
+  try {
+    const method = category.pkCategory ? 'PATCH' : 'POST';
+    const url = `${baseUrl}:${port}/category/`;
+    let bodyData;
 
-      console.log("Categoria: "+JSON.stringify(category))
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(category),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const updatedCategory = await response.json();
-
-      if (method === 'POST') {
-        setCategories([...categories, updatedCategory]);
-        showSnackbar('Category created successfully', 'success');
-      } else {
-        setCategories(categories.map((p) => (p.pkCategory === updatedCategory.pkCategory ? updatedCategory : p)));
-        showSnackbar('Category successfully updated', 'success');
-      }
-
-      setOpen(false);
-      setCategory(null);
-    } catch (error: any) {
-      console.error('Error saving Category: ', error);
-      showSnackbar('Error saving Category ', 'error');
+    if (method === 'POST') {
+      bodyData = {
+        name: category.name,
+        description: category.description,
+      };
+    } else {
+      bodyData = {
+        pkCategory: category.pkCategory,
+        name: category.name,
+        description: category.description,
+        status: 1, 
+      };
     }
-  };
+
+    console.log("Datos a enviar al backend:", JSON.stringify(bodyData));
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bodyData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`);
+    }
+
+    const updatedCategory = await response.json();
+
+    if (method === 'POST') {
+      setCategories([...categories, updatedCategory]);
+      showSnackbar('Category created successfully', 'success');
+    } else {
+      setCategories(categories.map((p) => (p.pkCategory === updatedCategory.pkCategory ? updatedCategory : p)));
+      showSnackbar('Category successfully updated', 'success');
+    }
+
+    setOpen(false);
+    setCategory(null);
+  } catch (error: any) {
+    console.error('Error saving Category: ', error);
+    showSnackbar(`Error saving Category: ${error.message}`, 'error');
+  }
+};
 
   const handleSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
