@@ -3,18 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p12100",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p12100",
     "lint": "next lint"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.3",
+    "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^6.4.2",
+    "@mui/utils": "^7.0.2",
     "@mui/x-data-grid": "^7.26.0",
     "@toolpad/core": "^0.12.0",
+    "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "next": "15.1.6",
     "react": "^19.0.0",
