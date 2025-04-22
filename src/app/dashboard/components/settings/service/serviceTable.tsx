@@ -54,6 +54,8 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
             services.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
         [page, rowsPerPage, services],
     );
+    console.log("Servicios: "+services);
+
 
     return (
         <TableContainer component={Paper}>
@@ -74,37 +76,10 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
                                 ) : null}
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell sortDirection={orderBy === 'description' ? order : false}>
-                            <TableSortLabel
-                                active={orderBy === 'description'}
-                                direction={orderBy === 'description' ? order : 'asc'}
-                                onClick={createSortHandler('description')}
-                            >
-                                Description
-                                {orderBy === 'description' ? (
-                                    <Box component="span" sx={visuallyHidden}>
-                                        {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                    </Box>
-                                ) : null}
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell>Sub-Category ID</TableCell> {/* Muestra la FK */}
-                        <TableCell>Client Type ID</TableCell> {/* Muestra la FK */}
-                        <TableCell>Service Type ID</TableCell> {/* Muestra la FK */}
-                        <TableCell sortDirection={orderBy === 'status' ? order : false}>
-                            <TableSortLabel
-                                active={orderBy === 'status'}
-                                direction={orderBy === 'status' ? order : 'asc'}
-                                onClick={createSortHandler('status')}
-                            >
-                                Status
-                                {orderBy === 'status' ? (
-                                    <Box component="span" sx={visuallyHidden}>
-                                        {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                    </Box>
-                                ) : null}
-                            </TableSortLabel>
-                        </TableCell>
+                        <TableCell>Sub-Category</TableCell>
+                        <TableCell>Category</TableCell>
+                        <TableCell>Client Type</TableCell> 
+                        <TableCell>Service Type</TableCell> 
                         <TableCell align="right">Actions</TableCell>
                     </TableRow>
                 </TableHead>
@@ -117,11 +92,11 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
                             <TableCell component="th" scope="row">
                                 {service.name}
                             </TableCell>
-                            <TableCell>{service.description}</TableCell>
-                            <TableCell>{service.fkSubCategory}</TableCell>
-                            <TableCell>{service.fkClientType !== null ? service.fkClientType : '-'}</TableCell>
-                            <TableCell>{service.fkServiceType !== null ? service.fkServiceType : '-'}</TableCell>
-                            <TableCell>{service.status === 1 ? 'Active' : 'Inactive'}</TableCell>
+                            <TableCell>{service.subCategory.name}</TableCell>
+                            <TableCell>{service.subCategory.category.name}</TableCell>
+
+                            <TableCell>{service.clientType.pkType !== null ? service.clientType.name : '-'}</TableCell>
+                            <TableCell>{service.serviceType.pkType !== null ? service.serviceType.name : '-'}</TableCell>
                             <TableCell align="right">
                                 <IconButton aria-label="edit" onClick={() => onEdit(service)}>
                                     <Edit />

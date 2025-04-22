@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { ServiceTable, ServiceForm } from '../../components/settings/service';
-import { Service } from '../../interface/service';
+import { Service } from '../../interface/serviceData';
 import { ChangeEvent, MouseEvent } from 'react';
 import PageContent from '../../components/dashboard/pageContent';
 import GlassCard from '../../components/dashboard/glassCard';
@@ -40,7 +40,7 @@ const ServicePage: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`${baseUrl}:${port}/service/findAll`, {
+                const response = await fetch(`${baseUrl}:${port}/service/findAllWithChildrens`, {
                     headers: {
                         'Content-Type': 'application/json',
                     },
