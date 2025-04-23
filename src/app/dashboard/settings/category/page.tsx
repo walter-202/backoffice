@@ -13,10 +13,10 @@ import {
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { CategoryTable, CategoryForm } from '../../components/category';
-import { Category } from '../../interface/category';
-import { ChangeEvent, MouseEvent } from 'react'; 
+import { ChangeEvent, MouseEvent } from 'react';
 import PageContent from '../../components/dashboard/pageContent';
 import GlassCard from '../../components/dashboard/glassCard';
+import {Category} from "@interfaces/category";
 
 const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
