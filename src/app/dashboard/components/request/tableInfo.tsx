@@ -22,7 +22,7 @@ import Stack from '@mui/joy/Stack';
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import {ModalClose} from "@mui/joy";
-import FormInfo from "@/app/dashboard/components/request/formInfo";
+import RequestForm from "@/app/dashboard/components/request/formInfo";
 
 
 
@@ -198,7 +198,7 @@ export default function RequestDataTable(props:propsRequestDataTable) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
-    const [typeView, setTypeView] = React.useState("view");
+    const [typeView, setTypeView] = React.useState<"view" | "edit" | "new">("view");
     const [selectedRequestId, setSelectedRequestId] = React.useState<number>(0);
     const handleViewClick = (row:number) => {
         setSelectedRequestId(row);
@@ -269,6 +269,7 @@ export default function RequestDataTable(props:propsRequestDataTable) {
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
     return (
     <React.Fragment>
+
         <Sheet
             variant="outlined"
             sx={{ width: '100%', boxShadow: 'sm', borderRadius: 'sm' }}
@@ -429,16 +430,10 @@ export default function RequestDataTable(props:propsRequestDataTable) {
             </Table>
         </Sheet>
 
-    <VerModal
-        idRequest={selectedRequestId}
-        typeForm={typeView}
+    <RequestForm
         open={isViewModalOpen}
-        onClose={ () => {setIsViewModalOpen(false)}}
-        /*open={isViewModalOpen}
         idRequest={selectedRequestId}
-
         typeForm={typeView}
-        onClose={handleCloseViewModal}*/
     />
 
     </React.Fragment>
@@ -452,35 +447,7 @@ export default function RequestDataTable(props:propsRequestDataTable) {
 
 
 }
-interface typeFormx {
-    type : "view" | "edit" | "new";
-}
-interface verModalProps {
-    idRequest  : number ;
-    typeForm : string;
-    onClose: () => void;
-    open: boolean;
-}
 
-function VerModal (props : verModalProps){
-    const {idRequest ,  typeForm, open, onClose } = props;
-
-    return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-        >
-            <ModalDialog layout="fullscreen">
-                <ModalClose onClick={onClose} />
-                <FormInfo
-                    idRequest={idRequest}
-                    typeForm={typeForm}
-                />
-            </ModalDialog>
-        </Modal>
-    );
-}
 
 
 

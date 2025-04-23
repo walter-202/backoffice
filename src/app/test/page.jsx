@@ -55,7 +55,6 @@ function Page(props) {
     
     return (
         <div>
-            <FormInfo />
             <RequestDataTable  rows={requests}/>
         </div>
 
