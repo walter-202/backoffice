@@ -11,17 +11,30 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
-import { ServiceTable, ServiceForm } from '../../components/settings/service';
+import { ServiceTable, ServiceForm, ServiceAddOn } from '../../components/settings/service';
 import { Service } from '../../interface/serviceData';
+import { Category } from "../../interface/Category";
+import { SubCategory } from "../../interface/subCategory";
+import { ClientType } from "../../interface/clientType";
+import { ServiceType } from "../../interface/serviceType";
+
 import { ChangeEvent, MouseEvent } from 'react';
 import PageContent from '../../components/dashboard/pageContent';
 import GlassCard from '../../components/dashboard/glassCard';
+
+interface SelectOptions {
+    categories: Category[];
+    subCategories: SubCategory[];
+    serviceTypes: ServiceType[];
+    clientTypes: ClientType[];
+}
 
 const ServicePage: React.FC = () => {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
+    const [openAddOn, setOpenAddOn] = useState(false);
     const [isEdit, setIsedit] = useState(true);
     const [currentService, setCurrentService] = useState<Service | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,12 +45,20 @@ const ServicePage: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+    const [selectOptions, setSelectOptions] = useState<SelectOptions>({
+        categories: [],
+        subCategories: [],
+        serviceTypes: [],
+        clientTypes: [],
+    });
+    const [loadingOptions, setLoadingOptions] = useState(true);
+    const [errorOptions, setErrorOptions] = useState<string | null>(null);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const port = process.env.NEXT_PUBLIC_PORT;
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchServices = async () => {
             setLoading(true);
             try {
                 const response = await fetch(`${baseUrl}:${port}/service/findAllWithChildrens`, {
@@ -57,15 +78,55 @@ const ServicePage: React.FC = () => {
 
             } catch (err: any) {
                 setError(err.message);
-                console.error('Error fetching data:', err);
+                console.error('Error fetching services:', err);
                 showSnackbar(`Error loading Services: ${err.message}`, 'error');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
+        fetchServices();
     }, []);
+
+    useEffect(() => {
+        const fetchSelectData = async () => {
+            setLoadingOptions(true);
+            try {
+                const [categoriesResponse, subCategoriesResponse, serviceTypesResponse, clientTypesResponse] = await Promise.all([
+                    fetch(`${baseUrl}:${port}/category/findAll`),
+                    fetch(`${baseUrl}:${port}/subCategory/findAll`),
+                    fetch(`${baseUrl}:${port}/servicestype/findAll`),
+                    fetch(`${baseUrl}:${port}/clientType/findAll`),
+                ]);
+
+                if (!categoriesResponse.ok) throw new Error(`HTTP error! status: ${categoriesResponse.status}`);
+                if (!subCategoriesResponse.ok) throw new Error(`HTTP error! status: ${subCategoriesResponse.status}`);
+                if (!serviceTypesResponse.ok) throw new Error(`HTTP error! status: ${serviceTypesResponse.status}`);
+                if (!clientTypesResponse.ok) throw new Error(`HTTP error! status: ${clientTypesResponse.status}`);
+
+                const categoriesData: Category[] = await categoriesResponse.json();
+                const subCategoriesData: SubCategory[] = await subCategoriesResponse.json();
+                const serviceTypesData: ServiceType[] = await serviceTypesResponse.json();
+                const clientTypesData: ClientType[] = await clientTypesResponse.json();
+
+                setSelectOptions({
+                    categories: categoriesData,
+                    subCategories: subCategoriesData,
+                    serviceTypes: serviceTypesData,
+                    clientTypes: clientTypesData,
+                });
+
+            } catch (err: any) {
+                setErrorOptions(err.message);
+                console.error('Error fetching select options:', err);
+                showSnackbar(`Error loading select options: ${err.message}`, 'error');
+            } finally {
+                setLoadingOptions(false);
+            }
+        };
+
+        fetchSelectData();
+    }, [baseUrl, port]);
 
     const handleEdit = (service: Service) => {
         setCurrentService(service);
@@ -75,8 +136,13 @@ const ServicePage: React.FC = () => {
 
     const handleCreate = () => {
         setCurrentService(null);
-        setIsedit(false); 
+        setIsedit(true);
         setOpen(true);
+    };
+
+    const handleAddOn = (service: Service) => {
+        setCurrentService(service);
+        setOpenAddOn(true);
     };
 
     const handleView = (service: Service) => {
@@ -96,9 +162,9 @@ const ServicePage: React.FC = () => {
             }
 
             setServices(services.filter((service) => service.pkService !== id));
-            showSnackbar('Successfully deleted service', 'success');
+            showSnackbar('Successfully deleted Service', 'success');
         } catch (error: any) {
-            console.error('Error when deleting service: ', error);
+            console.error('Error when deleting Service: ', error);
             showSnackbar('Error deleting service', 'error');
         }
     };
@@ -116,7 +182,6 @@ const ServicePage: React.FC = () => {
                     description: serviceData.description,
                     fkClientType: serviceData.fkClientType !== null ? parseInt(serviceData.fkClientType, 10) : null,
                     fkServiceType: serviceData.fkServiceType !== null ? parseInt(serviceData.fkServiceType, 10) : null,
-                    status: parseInt(serviceData.status, 10),
                 };
             } else {
                 bodyData = {
@@ -234,6 +299,7 @@ const ServicePage: React.FC = () => {
                             services={filteredServices}
                             onEdit={handleEdit}
                             onView={handleView}
+                            onService={handleAddOn}
                             onDelete={handleDelete}
                             orderBy={orderBy}
                             order={order}
@@ -245,13 +311,23 @@ const ServicePage: React.FC = () => {
                             searchQuery={searchQuery}
                         />
                     )}
-
+    
                     <ServiceForm
                         open={open}
                         isEdit={isEdit}
                         onClose={() => setOpen(false)}
                         service={currentService}
                         onSave={handleSave}
+                        categories={selectOptions.categories}
+                        subCategories={selectOptions.subCategories}
+                        serviceTypes={selectOptions.serviceTypes}
+                        clientTypes={selectOptions.clientTypes}
+                    />
+
+                    <ServiceAddOn
+                        open={openAddOn}
+                        onClose={() => setOpenAddOn(false)}
+                        service={currentService}
                     />
 
                     <Snackbar

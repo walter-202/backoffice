@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -18,6 +18,10 @@ import {
 import { Service } from '../../interface/serviceData';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { Category } from "../../interface/Category";
+import { SubCategory } from "../../interface/subCategory";
+import { ClientType } from "../../interface/clientType";
+import { ServiceType } from "../../interface/serviceType";
 
 interface ServiceFormProps {
     open: boolean;
@@ -25,73 +29,52 @@ interface ServiceFormProps {
     onClose: () => void;
     service: Service | null;
     onSave: (serviceData: any) => void;
-}
-
-interface Category {
-    pkCategory: number;
-    name: string;
-}
-
-interface SubCategory {
-    pkSubCategory: number;
-    name: string;
-    fkCategory: number;
-}
-
-interface ClientType {
-    pkClientType: number;
-    name: string;
-}
-
-interface ServiceType {
-    pkServiceType: number;
-    name: string;
+    categories: Category[];
+    subCategories: SubCategory[];
+    clientTypes: ClientType[];
+    serviceTypes: ServiceType[];
 }
 
 const validationSchema = Yup.object({
     name: Yup.string().required('Name is required').nullable(),
     description: Yup.string().nullable(),
     fkCategory: Yup.number().required('Category is required').nullable(),
-    fkSubCategory: Yup.number().required('Category is required').nullable(),
-    fkClientType: Yup.number().required('Category is required').nullable(),
-    fkServiceType: Yup.number().required('Category is required').nullable(),
-    status: Yup.number().nullable(),
+    fkSubCategory: Yup.number().required('Sub-Category is required').nullable(),
+    fkClientType: Yup.number().required('Client Type is required').nullable(),
+    fkServiceType: Yup.number().required('Service Type is required').nullable(),
 });
 
-const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, service, onSave }) => {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-    const [clientTypes, setClientTypes] = useState<ClientType[]>([]);
-    const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
-    const [loadingCategories, setLoadingCategories] = useState(false);
-    const [loadingSubCategories, setLoadingSubCategories] = useState(false);
-    const [loadingClientTypes, setLoadingClientTypes] = useState(false);
-    const [loadingServiceTypes, setLoadingServiceTypes] = useState(false);
-    const [categoriesLoaded, setCategoriesLoaded] = useState(false);
-    const [clientTypesLoaded, setClientTypesLoaded] = useState(false);
-    const [serviceTypesLoaded, setServiceTypesLoaded] = useState(false);
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const port = process.env.NEXT_PUBLIC_PORT;
-
+const ServiceForm: React.FC<ServiceFormProps> = ({
+    open,
+    isEdit,
+    onClose,
+    service,
+    onSave,
+    categories,
+    subCategories: allSubCategories,
+    clientTypes,
+    serviceTypes,
+}) => {
     const initialValues = {
         name: '',
         description: '',
-        fkCategory: '',
-        fkSubCategory: '',
-        fkClientType: '',
-        fkServiceType: '',
+        fkCategory: null,
+        fkSubCategory: null,
+        fkClientType: null,
+        fkServiceType: null,
         status: 1,
     };
+    
+    console.log("Service"+service);
 
     const formik = useFormik({
         initialValues: service ? {
             name: service.name || '',
             description: service.description || '',
-            fkCategory: service.fk_category ? service.fk_category : '',
-            fkSubCategory: service.fkSubCategory ? service.fkSubCategory : '',
-            fkClientType: service.fkClientType !== undefined ? service.fkClientType : '',
-            fkServiceType: service.fkServiceType !== undefined ? service.fkServiceType : '',
+            fkCategory: service.subCategory.category.pkCategory ? service.subCategory.category.pkCategory : '',
+            fkSubCategory: service.subCategory.pkSubCategory ? service.subCategory.pkSubCategory : '',
+            fkClientType: service.clientType.pkType !== undefined ? service.clientType.pkType : '',
+            fkServiceType: service.serviceType.pkType !== undefined ? service.serviceType.pkType : '',
             status: service.status !== undefined ? service.status : 1,
         } : initialValues,
         validationSchema: validationSchema,
@@ -110,96 +93,69 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, servic
         },
     });
 
-    const fetchCategories = useCallback(async () => {
-        if (categoriesLoaded) return;
-        setLoadingCategories(true);
-        try {
-            const response = await fetch(`${baseUrl}:${port}/category/findAll`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setCategories(data);
-            setCategoriesLoaded(true);
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-        } finally {
-            setLoadingCategories(false);
+    const filteredSubCategories = React.useMemo(() => {
+        if (!formik.values.fkCategory) {
+            return [];
         }
-    }, [baseUrl, port, categoriesLoaded]);
-
-    const fetchClientTypes = useCallback(async () => {
-        if (clientTypesLoaded) return;
-        setLoadingClientTypes(true);
-        try {
-            const response = await fetch(`${baseUrl}:${port}/clientType/findAll`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setClientTypes(data);
-            setClientTypesLoaded(true);
-        } catch (error) {
-            console.error("Error fetching client types:", error);
-        } finally {
-            setLoadingClientTypes(false);
-        }
-    }, [baseUrl, port, clientTypesLoaded]);
-
-    const fetchServiceTypes = useCallback(async () => {
-        if (serviceTypesLoaded) return;
-        setLoadingServiceTypes(true);
-        try {
-            const response = await fetch(`${baseUrl}:${port}/servicestype/findAll`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setServiceTypes(data);
-            setServiceTypesLoaded(true);
-        } catch (error) {
-            console.error("Error fetching service types:", error);
-        } finally {
-            setLoadingServiceTypes(false);
-        }
-    }, [baseUrl, port, serviceTypesLoaded]);
+        return allSubCategories.filter(sub => sub.fkCategory === formik.values.fkCategory);
+    }, [formik.values.fkCategory, allSubCategories]);
 
     useEffect(() => {
-        if (open) {
-            fetchCategories();
-            fetchClientTypes();
-            fetchServiceTypes();
-        } else {
-            setCategoriesLoaded(false);
-            setClientTypesLoaded(false);
-            setServiceTypesLoaded(false);
+        if (!open) {
             formik.resetForm();
-            setSubCategories([]);
         }
-    }, [open, fetchCategories, fetchClientTypes, fetchServiceTypes, formik.resetForm]);
-
-    useEffect(() => {
-        const fetchSubCategories = async () => {
-            formik.setFieldValue('fkSubCategory', ''); // Reset subcategory when category changes
-            if (!formik.values.fkCategory) {
-                setSubCategories([]);
-                return;
-            }
-            setLoadingSubCategories(true);
-            try {
-                const response = await fetch(`${baseUrl}:${port}/subcategory/findAll`);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                setSubCategories(data.filter(sub => sub.fkCategory === formik.values.fkCategory));
-            } catch (error) {
-                console.error("Error fetching subcategories:", error);
-            } finally {
-                setLoadingSubCategories(false);
-            }
-        };
-
-        fetchSubCategories();
-    }, [formik.values.fkCategory, baseUrl, port, formik.setFieldValue]);
+    }, [open, formik.resetForm]);
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>{isEdit && service ? 'Edit Service' : 'Create New Service'}</DialogTitle>
             <DialogContent>
                 <form onSubmit={formik.handleSubmit}>
+                    <FormControl fullWidth margin="dense" error={formik.touched.fkCategory && Boolean(formik.errors.fkCategory)}>
+                        <InputLabel id="category-label">Category</InputLabel>
+                        <Select
+                            labelId="category-label"
+                            id="fkCategory"
+                            name="fkCategory"
+                            value={formik.values.fkCategory}
+                            label="Category"
+                            onChange={formik.handleChange}
+                            disabled={!isEdit}
+                        >
+                            {categories.map((category) => (
+                                <MenuItem key={category.pkCategory} value={category.pkCategory}>
+                                    {category.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        {formik.touched.fkCategory && formik.errors.fkCategory && (
+                            <FormHelperText>{formik.errors.fkCategory}</FormHelperText>
+                        )}
+                    </FormControl>
+
+                    <FormControl fullWidth margin="dense" error={formik.touched.fkSubCategory && Boolean(formik.errors.fkSubCategory)} disabled={!formik.values.fkCategory}>
+                        <InputLabel id="subcategory-label">Sub-Category</InputLabel>
+                        <Select
+                            labelId="subcategory-label"
+                            id="fkSubCategory"
+                            name="fkSubCategory"
+                            value={formik.values.fkSubCategory}
+                            label="Sub-Category"
+                            onChange={formik.handleChange}
+                            disabled={!isEdit}
+                        >
+                           
+                            {filteredSubCategories.map((subCategory) => (
+                                <MenuItem key={subCategory.pkSubCategory} value={subCategory.pkSubCategory}>
+                                    {subCategory.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        {formik.touched.fkSubCategory && formik.errors.fkSubCategory && (
+                            <FormHelperText>{formik.errors.fkSubCategory}</FormHelperText>
+                        )}
+                    </FormControl>
+
                     <TextField
                         autoFocus
                         margin="dense"
@@ -214,6 +170,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, servic
                         error={formik.touched.name && Boolean(formik.errors.name)}
                         helperText={formik.touched.name && formik.errors.name}
                         required
+                        disabled={!isEdit}
                     />
                     <TextField
                         margin="dense"
@@ -229,65 +186,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, servic
                         onChange={formik.handleChange}
                         error={formik.touched.description && Boolean(formik.errors.description)}
                         helperText={formik.touched.description && formik.errors.description}
+                        disabled={!isEdit}
                     />
-
-                    <FormControl fullWidth margin="dense" error={formik.touched.fkCategory && Boolean(formik.errors.fkCategory)}>
-                        <InputLabel id="category-label">Category</InputLabel>
-                        <Select
-                            labelId="category-label"
-                            id="fkCategory"
-                            name="fkCategory"
-                            value={formik.values.fkCategory}
-                            label="Category"
-                            onChange={formik.handleChange}
-                        >
-                            {loadingCategories ? (
-                                <MenuItem disabled>
-                                    <CircularProgress size={20} /> Loading categories...
-                                </MenuItem>
-                            ) : (
-                                categories.map((category) => (
-                                    <MenuItem key={category.pkCategory} value={category.pkCategory}>
-                                        {category.name}
-                                    </MenuItem>
-                                ))
-                            )}
-                        </Select>
-                        {formik.touched.fkCategory && formik.errors.fkCategory && (
-                            <FormHelperText>{formik.errors.fkCategory}</FormHelperText>
-                        )}
-                    </FormControl>
-
-                    <FormControl fullWidth margin="dense" error={formik.touched.fkSubCategory && Boolean(formik.errors.fkSubCategory)} disabled={!formik.values.fkCategory || loadingSubCategories}>
-                        <InputLabel id="subcategory-label">Sub-Category</InputLabel>
-                        <Select
-                            labelId="subcategory-label"
-                            id="fkSubCategory"
-                            name="fkSubCategory"
-                            value={formik.values.fkSubCategory}
-                            label="Sub-Category"
-                            onChange={formik.handleChange}
-                        >
-                            {loadingSubCategories ? (
-                                <MenuItem disabled>
-                                    <CircularProgress size={20} /> Loading sub-categories...
-                                </MenuItem>
-                            ) : subCategories.length > 0 ? (
-                                subCategories.map((subCategory) => (
-                                    <MenuItem key={subCategory.pkSubCategory} value={subCategory.pkSubCategory}>
-                                        {subCategory.name}
-                                    </MenuItem>
-                                ))
-                            ) : (
-                                <MenuItem disabled value="">
-                                    No sub-categories available for this category
-                                </MenuItem>
-                            )}
-                        </Select>
-                        {formik.touched.fkSubCategory && formik.errors.fkSubCategory && (
-                            <FormHelperText>{formik.errors.fkSubCategory}</FormHelperText>
-                        )}
-                    </FormControl>
 
                     <FormControl fullWidth margin="dense">
                         <InputLabel id="client-type-label">Client Type</InputLabel>
@@ -298,18 +198,13 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, servic
                             value={formik.values.fkClientType}
                             label="Client Type"
                             onChange={formik.handleChange}
+                            disabled={!isEdit}
                         >
-                            {loadingClientTypes ? (
-                                <MenuItem disabled>
-                                    <CircularProgress size={20} /> Loading client types...
+                            {clientTypes.map((clientType) => (
+                                <MenuItem key={clientType.pkType} value={clientType.pkType}>
+                                    {clientType.name}
                                 </MenuItem>
-                            ) : (
-                                clientTypes.map((clientType) => (
-                                    <MenuItem key={clientType.pkClientType} value={clientType.pkClientType}>
-                                        {clientType.name}
-                                    </MenuItem>
-                                ))
-                            )}
+                            ))}
                         </Select>
                     </FormControl>
 
@@ -322,29 +217,26 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, isEdit, onClose, servic
                             value={formik.values.fkServiceType}
                             label="Service Type"
                             onChange={formik.handleChange}
+                            disabled={!isEdit}
                         >
-                            {loadingServiceTypes ? (
-                                <MenuItem disabled>
-                                    <CircularProgress size={20} /> Loading service types...
+                            {serviceTypes.map((serviceType) => (
+                                <MenuItem key={serviceType.pkType} value={serviceType.pkType}>
+                                    {serviceType.name}
                                 </MenuItem>
-                            ) : (
-                                serviceTypes.map((serviceType) => (
-                                    <MenuItem key={serviceType.pkServiceType} value={serviceType.pkServiceType}>
-                                        {serviceType.name}
-                                    </MenuItem>
-                                ))
-                            )}
+                            ))}
                         </Select>
                     </FormControl>
 
                 </form>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button type="submit" onClick={formik.handleSubmit} color="primary" disabled={!formik.isValid || formik.isSubmitting}>
-                    {isEdit && service ? 'Save Changes' : 'Create'}
-                </Button>
-            </DialogActions>
+           <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            {isEdit && (
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+            )}
+          </DialogActions>
         </Dialog>
     );
 };
