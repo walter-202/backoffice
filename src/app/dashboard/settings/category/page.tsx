@@ -122,7 +122,7 @@ const handleSave = async (category: Category) => {
       };
     }
 
-    console.log("Datos a enviar al backend:", JSON.stringify(bodyData));
+   
 
     const response = await fetch(url, {
       method,
@@ -131,19 +131,19 @@ const handleSave = async (category: Category) => {
       },
       body: JSON.stringify(bodyData),
     });
-
+    
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText || 'No message'}`);
     }
 
     const updatedCategory = await response.json();
-
+    
     if (method === 'POST') {
       setCategories([...categories, updatedCategory]);
       showSnackbar('Category created successfully', 'success');
     } else {
-      setCategories(categories.map((p) => (p.pkCategory === updatedCategory.pkCategory ? updatedCategory : p)));
+      setCategories(categories.map((p) => (p.pkCategory === updatedCategory.category.pkCategory ? updatedCategory.category : p)));
       showSnackbar('Category successfully updated', 'success');
     }
 

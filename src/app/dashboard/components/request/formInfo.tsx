@@ -212,7 +212,12 @@ export const RequestForm: React.FC<FormRequestProps> = ({ open,  idRequest, type
             sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
         >
 
-            <ModalDialog layout="fullscreen">
+            <ModalDialog  sx={{
+      width: 1200, // Ancho deseado en píxeles
+      maxWidth: '90%', // Ancho máximo para responsividad
+      height: 400, // Alto deseado en píxeles
+      maxHeight: '80%', // Alto máximo
+    }}>
                 <form
                     onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
                         event.preventDefault();

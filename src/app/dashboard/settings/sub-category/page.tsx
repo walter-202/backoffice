@@ -53,8 +53,7 @@ const SubCategoryPage: React.FC = () => {
 
         const jsonData = await response.json();
         setSubCategories(jsonData);
-        console.log("Fetched subCategories:", jsonData);
-
+    
       } catch (err: any) {
         setError(err.message);
         console.error('Error fetching data:', err);
@@ -124,8 +123,7 @@ const SubCategoryPage: React.FC = () => {
           status: 1,
         };
       }
-      console.log("Datos a enviar al backend:", JSON.stringify(bodyData));
-
+      
       const response = await fetch(url, {
         method,
         headers: {
@@ -139,14 +137,13 @@ const SubCategoryPage: React.FC = () => {
       }
 
       const updatedSubCategory = await response.json();
-      console.log("Respuesta del backend:", updatedSubCategory); // <-- Agrega esto para ver la respuesta
-
+      
       if (method === 'POST') {
-        setSubCategories([...subCategories, updatedSubCategory]); // Guarda el objeto completo
+        setSubCategories([...subCategories, updatedSubCategory]);
         showSnackbar('Sub-Category created successfully', 'success');
       } else {
         setSubCategories(subCategories.map((p) =>
-          p.pkSubCategory === updatedSubCategory.id ? updatedSubCategory : p // Actualiza el objeto completo
+          p.pkSubCategory === updatedSubCategory.subCategory.pkSubCategory ? updatedSubCategory.subCategory : p 
         ));
         showSnackbar('Sub-Category successfully updated', 'success');
       }

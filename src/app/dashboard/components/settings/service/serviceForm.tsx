@@ -58,10 +58,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     const initialValues = {
         name: '',
         description: '',
-        fkCategory: null,
-        fkSubCategory: null,
-        fkClientType: null,
-        fkServiceType: null,
+        fkCategory: 0,
+        fkSubCategory: 0,
+        fkClientType: 0,
+        fkServiceType: 0,
         status: 1,
     };
     
@@ -80,6 +80,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         validationSchema: validationSchema,
         enableReinitialize: true,
         onSubmit: (values) => {
+            console.log("Enviar Datos...")
             const payload = {
                 name: values.name,
                 description: values.description,
@@ -226,17 +227,17 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                             ))}
                         </Select>
                     </FormControl>
-
+                    <DialogActions>
+                        <Button onClick={onClose}>Cancel</Button>
+                        {isEdit && (
+                          <Button type="submit" variant="contained">
+                            Save
+                          </Button>
+                        )}
+                    </DialogActions>
                 </form>
             </DialogContent>
-           <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
-            {isEdit && (
-              <Button type="submit" variant="contained">
-                Save
-              </Button>
-            )}
-          </DialogActions>
+           
         </Dialog>
     );
 };

@@ -216,7 +216,7 @@ const ServicePage: React.FC = () => {
                 showSnackbar('Service created successfully', 'success');
             } else {
                 setServices(services.map((s) =>
-                    s.pkService === updatedService.id ? updatedService : s
+                    s.pkService === updatedService.service.pkService ? updatedService.service : s
                 ));
                 showSnackbar('Service successfully updated', 'success');
             }
