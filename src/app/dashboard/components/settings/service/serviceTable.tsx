@@ -131,7 +131,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
 
                             <TableCell>{service.clientType.pkType !== null ? service.clientType.name : '-'}</TableCell>
                             <TableCell>{service.serviceType.pkType !== null ? service.serviceType.name : '-'}</TableCell>
-                            <TableCell align="right">
+                            <TableCell>
                                 <IconButton aria-label="view" onClick={() => onView(service)}>
                                     <Visibility />
                                 </IconButton>

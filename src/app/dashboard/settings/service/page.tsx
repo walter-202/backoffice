@@ -74,8 +74,7 @@ const ServicePage: React.FC = () => {
 
                 const jsonData = await response.json();
                 setServices(jsonData);
-                console.log("Fetched services:", jsonData);
-
+             
             } catch (err: any) {
                 setError(err.message);
                 console.error('Error fetching services:', err);
@@ -194,8 +193,7 @@ const ServicePage: React.FC = () => {
                     status: parseInt(serviceData.status, 10),
                 };
             }
-            console.log("Datos a enviar al backend (Service):", JSON.stringify(bodyData));
-
+           
             const response = await fetch(url, {
                 method,
                 headers: {
@@ -209,7 +207,6 @@ const ServicePage: React.FC = () => {
             }
 
             const updatedService = await response.json();
-            console.log("Respuesta del backend (Service):", updatedService);
 
             if (method === 'POST') {
                 setServices([...services, updatedService]);

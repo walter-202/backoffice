@@ -7,7 +7,6 @@ import {
     DialogTitle,
     DialogContent,
     TextField,
-    DialogActions,
     Button,
     FormControl,
     InputLabel,
@@ -23,26 +22,21 @@ import {
     Typography,
     Paper,
     Box,
+    DialogActions,
+    Toolbar,
+    AppBar,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 
-import { ServiceAddOn } from "../../interface/serviceType";
-import { Delete as DeleteIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Visibility as VisibilityIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { ServiceAddOn } from "../../interface/serviceAddOn";
 
 interface Service {
     pkService: number;
     name: string;
-}
-
-interface ServiceAddon {
-    pkServiceAddon: number;
-    isRetail: number;
-    name: string;
-    description: string;
-    contentWeb: string;
-    price: number;
-    fkService: number;
 }
 
 interface ServiceFormProps {
@@ -52,23 +46,25 @@ interface ServiceFormProps {
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => {
-    const [editingAddon, setEditingAddon] = useState<ServiceAddon | null>(null);
-    const [addons, setAddons] = useState<ServiceAddon[]>([]); 
+    const [editingAddon, setEditingAddon] = useState<ServiceAddOn | null>(null);
+    const [addons, setAddons] = useState<ServiceAddOn[]>([]);
     const [loadingAddons, setLoadingAddons] = useState(false);
     const [errorLoadingAddons, setErrorLoadingAddons] = useState<string | null>(null);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success');
+    const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+    const [addonToDelete, setAddonToDelete] = useState<number | null>(null);
+    const [addonUpdated, setAddonUpdated] = useState(false);
 
-    const onAddonSave = async (addonData: Omit<ServiceAddon, 'pkServiceAddon' | 'fkService'>) => {
-        console.log('Guardando addon:', { ...addonData, fkService: service?.pkService });
-        return { pkServiceAddon: Math.random(), ...addonData };
-    };
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const port = process.env.NEXT_PUBLIC_PORT;
+    const apiUrl = `${baseUrl}:${port}`;
 
-    const onAddonUpdate = async (addonData: ServiceAddon) => {
-        console.log('Actualizando addon:', addonData);
-        return addonData;
-    };
-
-    const onAddonDelete = async (addonId: number) => {
-        console.log('Eliminando addon con ID:', addonId);
+    const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
     };
 
     const validationSchema = Yup.object({
@@ -88,32 +84,23 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
     };
 
     const formik = useFormik({
-        initialValues: editingAddon || initialValues,
+        initialValues: initialValues,
         validationSchema: validationSchema,
         enableReinitialize: true,
         onSubmit: async (values) => {
             if (!service?.pkService) {
-                console.error('No se puede guardar el addon porque no hay un servicio asociado.');
+                console.error('Cannot save addon as there is no associated service.');
                 return;
             }
-            const addonDataToSend = { ...values, fkService: service.pkService };
             try {
                 if (editingAddon) {
-                    await onAddonUpdate({ ...editingAddon, ...addonDataToSend });
-                    setAddons(addons.map(addon =>
-                        addon.pkServiceAddon === editingAddon.pkServiceAddon ?
-                            { ...editingAddon, ...addonDataToSend } : addon
-                    ));
-                    setEditingAddon(null);
+                    await handleUpdateAddon(values);
                 } else {
-                    const newAddon = await onAddonSave(addonDataToSend);
-                    if (newAddon && newAddon.pkServiceAddon) {
-                        setAddons([...addons, newAddon]);
-                    }
+                    await handleSaveAddon(values);
                 }
-                formik.resetForm();
             } catch (error) {
-                console.error('Error saving addon:', error);
+                console.error('Error saving/updating addon:', error);
+                showSnackbar('Error saving/updating addon.', 'error');
             }
         },
     });
@@ -123,19 +110,34 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
             if (service?.pkService) {
                 setLoadingAddons(true);
                 try {
-                    const response = await new Promise(resolve => setTimeout(() => {
-                        const mockAddons = [
-                            { pkServiceAddon: 1, isRetail: 0, name: 'Addon 1', description: 'Description 1', contentWeb: 'Web Content 1', price: 10, fkService: service.pkService },
-                            { pkServiceAddon: 2, isRetail: 1, name: 'Addon 2', description: 'Description 2', contentWeb: 'Web Content 2', price: 20, fkService: service.pkService },
-                        ];
-                        resolve(mockAddons);
-                    }, 1000));
-
-                    setAddons(response as ServiceAddon[]);
-                    setErrorLoadingAddons(null);
+                    const response = await fetch(`${apiUrl}/serviceAddon/getAllByService/${service.pkService}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Error fetching addons: ${response.status}`);
+                    }
+                    const responseData = await response.json();
+                    if (responseData && Array.isArray(responseData.addons)) {
+                        const formattedAddons: ServiceAddOn[] = responseData.addons.map(item => ({
+                            pkAddon: item.pkAddon,
+                            isReail: item.isReail,
+                            name: item.name,
+                            description: item.description,
+                            contentWeb: item.contentWeb,
+                            price: item.price,
+                            fkService: service.pkService,
+                            status: item.status,
+                        }));
+                        setAddons(formattedAddons);
+                        setErrorLoadingAddons(null);
+                    } else {
+                        console.error("Backend response does not contain an array of addons in the 'addons' property:", responseData);
+                        setErrorLoadingAddons("Error: Backend response does not have the expected format for addons.");
+                        setAddons([]);
+                    }
                 } catch (error: any) {
                     console.error('Error loading addons:', error);
                     setErrorLoadingAddons(error.message || 'Error loading addons');
+                    setAddons([]);
                 } finally {
                     setLoadingAddons(false);
                 }
@@ -145,12 +147,13 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
         };
 
         fetchServiceAddons();
-    }, [service?.pkService]);
+        setAddonUpdated(false); 
+    }, [service?.pkService, apiUrl]);
 
     useEffect(() => {
         if (editingAddon) {
             formik.setValues({
-                isRetail: editingAddon.isRetail,
+                isRetail: editingAddon.isReail,
                 name: editingAddon.name,
                 description: editingAddon.description || '',
                 contentWeb: editingAddon.contentWeb || '',
@@ -161,31 +164,129 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
         }
     }, [editingAddon, formik.setValues, formik.resetForm]);
 
-    const handleEditAddon = (addon: ServiceAddon) => {
+    const handleEditAddon = (addon: ServiceAddOn) => {
         setEditingAddon(addon);
+    };
+
+    const openConfirmDeleteDialog = (addonId: number) => {
+        setAddonToDelete(addonId);
+        setConfirmDeleteDialogOpen(true);
+    };
+
+    const closeConfirmDeleteDialog = () => {
+        setAddonToDelete(null);
+        setConfirmDeleteDialogOpen(false);
+    };
+
+    const handleDeleteConfirmation = async () => {
+        if (addonToDelete !== null) {
+            await handleDeleteAddon(addonToDelete);
+            closeConfirmDeleteDialog();
+        }
     };
 
     const handleDeleteAddon = async (addonId: number) => {
         try {
-            await onAddonDelete(addonId);
-            setAddons(addons.filter((addon) => addon.pkServiceAddon !== addonId));
+            const response = await fetch(`${apiUrl}/serviceAddon/${addonId}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error deleting addon: ${response.status}`);
+            }
+            setAddons(addons.filter((addon) => addon.pkAddon !== addonId));
             setEditingAddon(null);
+            showSnackbar('Addon deleted successfully.', 'success');
         } catch (error) {
             console.error('Error deleting addon:', error);
+            showSnackbar('Error deleting addon.', 'error');
+        }
+    };
+
+    const handleSaveAddon = async (values: typeof initialValues) => {
+        if (!service?.pkService) {
+            console.error('Cannot save addon as there is no associated service.');
+            return;
+        }
+        try {
+            const response = await fetch(`${apiUrl}/serviceAddon`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...values, fkService: service.pkService }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error creating addon: ${response.status}`);
+            }
+            const newAddon: ServiceAddOn = await response.json();
+            setAddons([...addons, newAddon]);
+            formik.resetForm();
+            showSnackbar('Addon created successfully.', 'success');
+            setAddonUpdated(true); 
+        } catch (error) {
+            console.error('Error saving addon:', error);
+            showSnackbar('Error saving addon.', 'error');
+        }
+    };
+
+    const handleUpdateAddon = async (values: typeof initialValues) => {
+        if (!editingAddon) return;
+        try {
+            const response = await fetch(`${apiUrl}/serviceAddon`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pkAddon: editingAddon.pkAddon,
+                    ...values,
+                    status: editingAddon.status !== undefined ? editingAddon.status : 1,
+                    fkService: service?.pkService,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error updating addon: ${response.status}`);
+            }
+            const updatedAddon: ServiceAddOn = await response.json();
+            setAddons(addons.map(addon =>
+                addon.pkAddon === updatedAddon.addon.pkAddon ? updatedAddon.addon : addon
+            ));
+            setEditingAddon(null);
+            formik.resetForm();
+            showSnackbar('Addon updated successfully.', 'success');
+            setAddonUpdated(true);
+        } catch (error) {
+            console.error('Error updating addon:', error);
+            showSnackbar('Error updating addon.', 'error');
         }
     };
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-            <DialogTitle>
-                {service ? `Manage Addons for ${service.name}` : 'Manage Addons'}
-            </DialogTitle>
-            <DialogContent>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+            <AppBar sx={{ position: 'relative' }}>
+                <Toolbar>
+                    <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+                        {service ? `Manage Addons for ${service.name}` : 'Manage Addons'}
+                    </Typography>
+                    <IconButton
+                        edge="start"
+                        color="inherit"
+                        onClick={onClose}
+                        aria-label="close"
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <DialogContent sx={{ mt: 1, bgcolor: '#f0f0f0' }}>
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={3} style={{ padding: 16 }}>
+                        <Paper elevation={3} sx={{ p: 2 }}>
                             <form onSubmit={formik.handleSubmit}>
-                                
                                 <TextField
                                     fullWidth
                                     margin="dense"
@@ -219,7 +320,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
                                     value={formik.values.contentWeb}
                                     onChange={formik.handleChange}
                                 />
-                                
+
                                 <FormControl fullWidth margin="dense">
                                     <InputLabel id="isRetail-label">Is Retail</InputLabel>
                                     <Select
@@ -254,7 +355,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
                                     <Button type="submit" variant="contained" color="primary">
                                         {editingAddon ? 'Save Changes' : 'Add Addon'}
                                     </Button>
-                                    <Button onClick={() => setEditingAddon(null)} disabled={!editingAddon} style={{ marginLeft: 8 }}>
+                                    <Button onClick={() => setEditingAddon(null)} disabled={!editingAddon} sx={{ ml: 1 }}>
                                         Cancel Edit
                                     </Button>
                                 </Box>
@@ -262,53 +363,77 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={3} style={{ padding: 16 }}>
+                        <Paper elevation={3} sx={{ p: 2, maxHeight: '500px', overflowY: 'auto' }}>
                             <Typography variant="h6" gutterBottom>
                                 Addons for {service?.name}
                             </Typography>
-                            {loadingAddons ? (
-                                <Box display="flex" justifyContent="center">
-                                    <CircularProgress />
-                                </Box>
-                            ) : errorLoadingAddons ? (
-                                <Typography color="error">{errorLoadingAddons}</Typography>
-                            ) : (
-                                <List>
-                                    {addons.map((addon) => (
-                                        <ListItem key={addon.pkServiceAddon} divider>
+                            <List>
+                                {loadingAddons ? (
+                                    <ListItem>
+                                        <ListItemText primary="Loading Addons..." />
+                                    </ListItem>
+                                ) : errorLoadingAddons ? (
+                                    <ListItem>
+                                        <ListItemText primary={`Error loading addons: ${errorLoadingAddons}`} />
+                                    </ListItem>
+                                ) : addons.length > 0 ? (
+                                    addons.map((addon) => (
+                                        <ListItem key={addon.pkAddon} divider>
                                             <ListItemText
                                                 primary={addon.name}
                                                 secondary={`Price: ${addon.price}`}
                                             />
                                             <ListItemSecondaryAction>
-                                                <IconButton edge="end" aria-label="view" onClick={() => handleEditAddon(addon)}>
+                                                <IconButton edge="end" aria-label="edit" onClick={() => handleEditAddon(addon)}>
                                                     <VisibilityIcon />
                                                 </IconButton>
-                                                <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteAddon(addon.pkServiceAddon)}>
-                                                    <DeleteIcon color="error" />
+                                                <IconButton edge="end" aria-label="delete" onClick={() => openConfirmDeleteDialog(addon.pkAddon)}>
+                                                    <DeleteIcon />
                                                 </IconButton>
                                             </ListItemSecondaryAction>
                                         </ListItem>
-                                    ))}
-                                    {addons.length === 0 && (
-                                        <ListItem>
-                                            <ListItemText primary={`No addons available for ${service?.name}.`} />
-                                        </ListItem>
-                                    )}
-                                </List>
-                            )}
+                                    ))
+                                ) : (
+                                    <ListItem>
+                                        <ListItemText primary={`No addons available for ${service?.name}.`} />
+                                    </ListItem>
+                                )}
+                            </List>
                         </Paper>
                     </Grid>
                 </Grid>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cerrar</Button>
-                {service && (
-                    <Typography style={{ marginLeft: 'auto' }}>
-                        Service PK: {service.pkService}
-                    </Typography>
-                )}
-            </DialogActions>
+            <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+            <Dialog
+                open={confirmDeleteDialogOpen}
+                onClose={closeConfirmDeleteDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Confirm Delete Addon?"}
+                </DialogTitle>
+                <DialogContent id="alert-dialog-description">
+                    Are you sure you want to delete this addon?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeConfirmDeleteDialog} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDeleteConfirmation} color="error" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Dialog>
     );
 };
