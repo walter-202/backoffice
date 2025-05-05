@@ -1,11 +1,13 @@
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import PhonelinkRingIcon from '@mui/icons-material/PhonelinkRing';
 import TuneIcon from '@mui/icons-material/Tune';
 import CategoryIcon from '@mui/icons-material/Category';
 import ClassIcon from '@mui/icons-material/Class';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import AppSettingsAltIcon from '@mui/icons-material/AppSettingsAlt';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const iconSmall = 18;
 const iconSmallSubItems = 16; 
@@ -27,13 +29,12 @@ const menuItems = [
       href: '/productos',
     },
     {
-      label: 'SALES',
-      icon: <AssessmentIcon style={{ fontSize: iconSmall }} />,
-      href: '/reportes',
+      label: 'APP MOBILE',
+      icon: <AppSettingsAltIcon style={{ fontSize: iconSmall }} />,
       subItems: [
-        { label: 'Sub Item 1', href: '/sales/sub1' },
-        { label: 'Another Sub Item', href: '/sales/sub2' },
-      ],
+        { label: 'Request Services', icon: <PhonelinkRingIcon style={{ fontSize: iconSmallSubItems }} />, href: '/dashboard/app-mobile/service-request' },
+        { label: 'Question For Company', icon: <ContactSupportIcon style={{ fontSize: iconSmallSubItems }} />, href: '/dashboard/' },
+        ],
     },
     {
       label: 'CMS',
