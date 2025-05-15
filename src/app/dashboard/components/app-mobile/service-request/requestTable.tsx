@@ -16,7 +16,7 @@ import {
   TableSortLabel,
   IconButton,
   Button,
-  Chip // Importa el componente Chip de Material-UI para los badges
+  Chip 
 } from '@mui/material';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { RequestService } from "@interfaces/serviceRequest";
@@ -47,6 +47,21 @@ const statusMap: { [key: number]: StatusInfo } = {
   2: { label: 'Completed', color: 'success' },
   3: { label: 'Cancelled', color: 'error' },
 };
+
+const SERVICES: { [key: number] } = {
+   1: { label: 'Insurance Claim' },
+   2: { label: 'Roofing'},
+   3: { label: 'HVAC' },
+   4: { label: 'Gutters' },
+   5: { label: 'Windows' },
+   6: { label: 'Insolation' },
+   7: { label: 'Solar Panel' },
+   8: { label: 'Electric Service' },
+   9: { label: 'Water Threatment' },
+   10: { label: 'Tax Services' },
+   11: { label: 'Other' },
+};
+``
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
@@ -86,6 +101,10 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
     setConfirmDeleteOpen(true);
   };
 
+  const getServiceTitle = (serviceCode: number): string | undefined => {
+    const service = SERVICES.find((s) => s.codigo === serviceCode);
+    return service?.title;
+  };
 
   const paginatedRequestService = sortedRequestService.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -99,7 +118,7 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
       <Table>
         <TableHead>
           <TableRow>
-            {['Request Type', 'Contact', 'Address', 'Status', 'Date', 'Actions'].map((header) => (
+            {['Request Type', 'User', 'Address', 'Status', 'Date', '`Info.'].map((header) => (
               <TableCell key={header}>
                 {header === 'Actions' ? (
                   'Actions'
@@ -119,8 +138,8 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
         <TableBody>
           {paginatedRequestService.map((requestService) => (
             <TableRow key={requestService.requestId}>
-              <TableCell>{requestService.serviceType}</TableCell>
-              <TableCell>{requestService.fkUser?.username}</TableCell>
+              <TableCell>{SERVICES[requestService.serviceType].label}</TableCell>
+              <TableCell>{requestService.fkUser?.email}</TableCell>
               <TableCell>{requestService.address}</TableCell>
               <TableCell>
                 {statusMap[requestService.status] ? (

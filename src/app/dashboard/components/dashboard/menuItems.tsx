@@ -19,16 +19,6 @@ const menuItems = [
       href: '/dashboard',
     },
     {
-      label: 'ACTIVITI BOX',
-      icon: <PeopleIcon style={{ fontSize: iconSmall }} />,
-      href: '/users',
-    },
-    {
-      label: 'MARKETING',
-      icon: <InventoryIcon style={{ fontSize: iconSmall }} />,
-      href: '/productos',
-    },
-    {
       label: 'APP MOBILE',
       icon: <AppSettingsAltIcon style={{ fontSize: iconSmall }} />,
       subItems: [
@@ -37,12 +27,9 @@ const menuItems = [
         ],
     },
     {
-      label: 'CMS',
+      label: 'LEADS',
       icon: <DashboardIcon style={{ fontSize: iconSmall }} />,
-      subItems: [
-        { label: 'Post Editor', href: '/cms/editor' },
-        { label: 'Media Library', href: '/cms/media' },
-      ],
+      href: '/dashboard/contact',
     },
     {
       label: 'SETTINGS',
