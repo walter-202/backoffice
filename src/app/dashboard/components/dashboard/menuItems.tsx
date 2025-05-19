@@ -29,7 +29,7 @@ const menuItems = [
     {
       label: 'LEADS',
       icon: <DashboardIcon style={{ fontSize: iconSmall }} />,
-      href: '/dashboard/contact',
+      href: '/dashboard/contact_list',
     },
     {
       label: 'SETTINGS',

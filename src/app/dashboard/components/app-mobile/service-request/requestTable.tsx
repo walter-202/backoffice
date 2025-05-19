@@ -21,6 +21,7 @@ import {
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { RequestService } from "@interfaces/serviceRequest";
 import { ChangeEvent, MouseEvent } from 'react';
+import Link from 'next/link';
 
 interface RequestServiceTableProps {
   requests: RequestService[];
@@ -139,7 +140,20 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
           {paginatedRequestService.map((requestService) => (
             <TableRow key={requestService.requestId}>
               <TableCell>{SERVICES[requestService.serviceType].label}</TableCell>
-              <TableCell>{requestService.fkUser?.email}</TableCell>
+      
+             <TableCell>
+              <Link href={`http://localhost:12100/dashboard/contact_detail/`} passHref>
+                <Chip
+                  component="a"
+                  label={requestService.fkUser?.email}
+                  clickable
+                  size="small"
+                  color="black" 
+                  variant="outlined" 
+                  sx={{ borderRadius: '5px' }} 
+                />
+              </Link>
+            </TableCell>
               <TableCell>{requestService.address}</TableCell>
               <TableCell>
                 {statusMap[requestService.status] ? (
