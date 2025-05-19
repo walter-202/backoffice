@@ -1,12 +1,11 @@
-import React from 'react';
+'use client';
+import React, { useState } from 'react';
 import { 
   Box, 
   Typography, 
-  Checkbox, 
   List, 
   ListItem, 
-  ListItemText, 
-  ListItemIcon,
+  ListItemText,
   Divider,
   Table,
   TableBody,
@@ -17,8 +16,14 @@ import {
   Paper,
   TextField,
   Button,
-  Grid
+  Grid,
+  IconButton,
+  InputAdornment,
+  Stack
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
 
 const contactInfo = {
     name: "Jim Fairbanks",
@@ -43,31 +48,58 @@ const contactInfo = {
   };
 
 const FormPage = () => {
+  const [hoveredPhone, setHoveredPhone] = useState(null);
+  const [hoveredEmail, setHoveredEmail] = useState(null);
+
   return (
     <Box sx={{ padding: 3, maxWidth: 1200, margin: '0 auto' }}>
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
         <Button variant="contained">Actions</Button>
         <Button variant="contained">Skip Tracer</Button>
-        <Button variant="contained">Actios Plan</Button>
+        <Button variant="contained">Actions Plan</Button>
+        
+        <Stack direction="column" alignItems="center" sx={{ ml: 1, color: '#fa8720' }} >
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0 }}>
+            <IconButton size="small" sx={{ color: '#fa8720' }}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+         </Box>
+         <Typography variant="h6" sx={{ mr: 0.5 }}>Appointment</Typography>
+        </Stack>
+
+        <Stack direction="column" alignItems="center" sx={{ ml: 1, color: '#2b6efc' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0 }}>
+            <IconButton size="small" sx={{ color: '#2b6efc' }}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+         </Box>
+         <Typography variant="h6" sx={{ mr: 0.5 }}>Task</Typography>
+        </Stack>
+
+        <Stack direction="column" alignItems="center" sx={{ ml: 1, color: '#71a81d' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0 }}>
+            <IconButton size="small" sx={{ color: '#71a81d' }}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+         </Box>
+         <Typography variant="h6" sx={{ mr: 0.5 }}>Follow Up Call</Typography>
+        </Stack>
       </Box>
 
       <Divider sx={{ my: 3 }} />
 
-      <Grid container spacing={3}>
-        {/* Columna izquierda - Contenido principal */}
-        <Grid item xs={12} md={8}>
+      <Grid container spacing={1}>
+        <Grid item xs={12} md={9}>
           <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+            
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={5}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
               {contactInfo.name}
             </Typography>
-
-            <Grid container spacing={3}>
-              {/* Columna 1: Nombre y Direcciones */}
-              <Grid item xs={12} md={6}>
                 <Box>
                   {contactInfo.addresses.map((address, index) => (
                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Checkbox edge="start" checked={index === 0} />
                       <Typography variant="body1">
                         {address}
                       </Typography>
@@ -76,32 +108,74 @@ const FormPage = () => {
                 </Box>
               </Grid>
 
-              {/* Columna 2: Teléfonos con scroll */}
-              <Grid item xs={12} md={6}>
-                <Paper variant="outlined" sx={{ maxHeight: 200, overflow: 'auto' }}>
+              <Grid item xs={12} md={3}>
+                <Paper variant="outlined" sx={{ maxHeight: 150, overflow: 'auto' }}>
                   <List dense>
                     {contactInfo.phones.map((phone, index) => (
-                      <ListItem key={index}>
-                        <ListItemIcon>
-                          <Checkbox edge="start" checked={phone.checked} />
-                        </ListItemIcon>
-                        <ListItemText primary={phone.number} />
+                      <ListItem 
+                        key={index} 
+                        onMouseEnter={() => setHoveredPhone(index)}
+                        onMouseLeave={() => setHoveredPhone(null)}
+                        sx={{
+                          transition: 'all 0.3s ease'
+                        }}
+                        secondaryAction={
+                          <IconButton edge="end">
+                            <PhoneIcon 
+                              fontSize={hoveredPhone === index ? "medium" : "small"} 
+                              color="success" 
+                              sx={{
+                                transition: 'all 0.3s ease'
+                              }}
+                            />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemText 
+                          primary={phone.number} 
+                          primaryTypographyProps={{
+                            fontSize: hoveredPhone === index ? '1.05rem' : '1rem',
+                            fontWeight: hoveredPhone === index ? 500 : 400,
+                            transition: 'all 0.3s ease'
+                          }}
+                        />
                       </ListItem>
                     ))}
                   </List>
                 </Paper>
               </Grid>
 
-              {/* Columna 3: Emails con scroll */}
-              <Grid item xs={12} md={6}>
-                <Paper variant="outlined" sx={{ maxHeight: 200, overflow: 'auto' }}>
+              <Grid item xs={12} md={4}>
+                <Paper variant="outlined" sx={{ maxHeight: 150, overflow: 'auto' }}>
                   <List dense>
                     {contactInfo.emails.map((email, index) => (
-                      <ListItem key={index}>
-                        <ListItemIcon>
-                          <Checkbox edge="start" checked={email.checked} />
-                        </ListItemIcon>
-                        <ListItemText primary={email.email} />
+                      <ListItem 
+                        key={index}
+                        onMouseEnter={() => setHoveredEmail(index)}
+                        onMouseLeave={() => setHoveredEmail(null)}
+                        sx={{
+                          transition: 'all 0.3s ease'
+                        }}
+                        secondaryAction={
+                          <IconButton edge="end">
+                            <EmailIcon 
+                              fontSize={hoveredEmail === index ? "medium" : "small"} 
+                              color="success"
+                              sx={{
+                                transition: 'all 0.3s ease'
+                              }}
+                            />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemText 
+                          primary={email.email} 
+                          primaryTypographyProps={{
+                            fontSize: hoveredEmail === index ? '1.05rem' : '1rem',
+                            fontWeight: hoveredEmail === index ? 500 : 400,
+                            transition: 'all 0.3s ease'
+                          }}
+                        />
                       </ListItem>
                     ))}
                   </List>
@@ -112,7 +186,6 @@ const FormPage = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          {/* Groups Table */}
           <Typography variant="h6" gutterBottom>
             Groups:
           </Typography>
@@ -148,83 +221,9 @@ const FormPage = () => {
           </TableContainer>
 
           <Divider sx={{ my: 3 }} />
-
-          {/* Misc Fields Section */}
-          <Typography variant="h6" gutterBottom>
-            Misc Fields:
-          </Typography>
-          
-          <Typography variant="subtitle1" gutterBottom>
-            Show Bunk Mie Fields
-          </Typography>
-          
-          <TableContainer component={Paper} sx={{ mb: 3 }}>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Listing Status</TableCell>
-                  <TableCell>Exelred</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>List Office</TableCell>
-                  <TableCell>ABS REALTORS</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Station Change Date</TableCell>
-                  <TableCell>07/05/2022</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Bathrooms</TableCell>
-                  <TableCell>2</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>List Price</TableCell>
-                  <TableCell>$1,385,000</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Square Footage</TableCell>
-                  <TableCell>2840</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Days On Market</TableCell>
-                  <TableCell>112</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>MLS Home</TableCell>
-                  <TableCell>MLS</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>MLS ID</TableCell>
-                  <TableCell>V4FA123456</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Year Built</TableCell>
-                  <TableCell>1948</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Property Type</TableCell>
-                  <TableCell>Single Family Home</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>List Agent</TableCell>
-                  <TableCell>John Smith</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Bathrooms</TableCell>
-                  <TableCell>4</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Subdivision</TableCell>
-                  <TableCell>HEIGHTS</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <Divider sx={{ my: 3 }} />
-
-          {/* Help Team Account Section */}
-          <Typography variant="h6" gutterBottom>
-            Help Team Account
-          </Typography>
-          
-          <Typography variant="subtitle2" gutterBottom>
-            09/10/2023 13:37 PM
-          </Typography>
-          
-          <Typography paragraph>
-            Remarks: ATTENTION DEVELOPERS THE best and most exciting development opportunity in the City of Eliza Church have available for a 15.35 square foot panel who has right ability to subdivide and build TWO schools - one $700 square foot in the other two square feet. That's a total of 97% of the rest of your beautiful new construction. Adjacent land is stored for multi-family homes, so possibility exists for ever more development than to ideally located property. The expansive corner that is situated in an established neighborhood will only view of the W&OD Blue Trail and offers easy access to 66 and 495.5.
-          </Typography>
         </Grid>
 
-        {/* Columna derecha - Notas */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Notes:
@@ -233,11 +232,26 @@ const FormPage = () => {
             <TextField
               fullWidth
               multiline
-              rows={15}
-              placeholder="Type notes here..."
+              rows={3}
+              placeholder="Add a note..."
               variant="outlined"
-              sx={{ mb: 3 }}
+              sx={{ mb: 2 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton>
+                      <AddIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
+            
+            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+              <Typography variant="body2">
+                Example note: Need to follow up with client about payment.
+              </Typography>
+            </Paper>
           </Paper>
         </Grid>
       </Grid>
