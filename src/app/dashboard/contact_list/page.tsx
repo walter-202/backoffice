@@ -22,6 +22,7 @@ import {
   Chip, 
 } from '@mui/material';
 import Link from 'next/link';
+import axios from 'axios';
 
 interface Contact {
   pkContact: number;
@@ -64,15 +65,17 @@ const FormPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:12099/Contact/findAll`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Contact[] = await response.json();
+        const response = await axios.get(`${baseUrl}:${port}/Contact/findAll`);
+        const data: Contact[] = response.data; 
         setContacts(data);
       } catch (e: any) {
-        setError('Failed to fetch contacts.');
-        console.error('Error fetching contacts:', e);
+        if (axios.isAxiosError(e) && e.response) {
+          setError(`Failed to fetch contacts: ${e.response.status} - ${e.response.statusText}`);
+          console.error('Error fetching contacts:', e.response.data); 
+        } else {
+          setError('Failed to fetch contacts. Network error or unexpected problem.');
+          console.error('Error fetching contacts:', e);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,6 +83,7 @@ const FormPage = () => {
 
     fetchContacts();
   }, []);
+
 
   if (loading) {
     return <Typography>Loading contacts...</Typography>;
