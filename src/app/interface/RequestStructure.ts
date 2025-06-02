@@ -1,5 +1,5 @@
 
-export enum TextAlign {
+/*export enum TextAlign {
     Right = 'right',
     Left = 'left',
     Center = 'center',
@@ -75,5 +75,5 @@ export let requestHeadInfo : headStructure[] = [
     },
 ]
 
-
+*/
 

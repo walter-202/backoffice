@@ -42,6 +42,10 @@ interface StatusInfo {
   color: 'warning' | 'primary' | 'success' | 'error'; 
 }
 
+interface Service {
+  label: string;
+}
+
 const statusMap: { [key: number]: StatusInfo } = {
   0: { label: 'Pending', color: 'warning' },
   1: { label: 'In Progress', color: 'primary' },
@@ -49,7 +53,7 @@ const statusMap: { [key: number]: StatusInfo } = {
   3: { label: 'Cancelled', color: 'error' },
 };
 
-const SERVICES: { [key: number] } = {
+const SERVICES: { [key: number]: Service } = {
    1: { label: 'Insurance Claim' },
    2: { label: 'Roofing'},
    3: { label: 'HVAC' },
@@ -102,10 +106,10 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
     setConfirmDeleteOpen(true);
   };
 
-  const getServiceTitle = (serviceCode: number): string | undefined => {
+  /*const getServiceTitle = (serviceCode: number): string | undefined => {
     const service = SERVICES.find((s) => s.codigo === serviceCode);
     return service?.title;
-  };
+  };*/
 
   const paginatedRequestService = sortedRequestService.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -148,7 +152,7 @@ const RequestTable: React.FC<RequestServiceTableProps> = ({
                   label={requestService.fkUser?.email}
                   clickable
                   size="small"
-                  color="black" 
+                  color="primary" 
                   variant="outlined" 
                   sx={{ borderRadius: '5px' }} 
                 />
