@@ -12,11 +12,11 @@ import {
 } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
 import { ServiceTable, ServiceForm, ServiceAddOn } from '../../components/settings/service';
-import { Service } from '../../interface/serviceData';
-import { Category } from "../../interface/Category";
-import { SubCategory } from "../../interface/subCategory";
-import { ClientType } from "../../interface/clientType";
-import { ServiceType } from "../../interface/serviceType";
+import { Service } from '../../../interface/serviceData';
+import { Category } from "../../../interface/category";
+import { SubCategory } from "../../../interface/subCategory";
+import { ClientType } from "../../../interface/clientType";
+import { ServiceType } from "../../../interface/serviceType";
 
 import { ChangeEvent, MouseEvent } from 'react';
 import PageContent from '../../components/dashboard/pageContent';
@@ -184,7 +184,7 @@ const ServicePage: React.FC = () => {
                 };
             } else {
                 bodyData = {
-                    pkService: currentService.pkService,
+                    pkService: currentService?.pkService,
                     fkSubCategory: parseInt(serviceData.fkSubCategory, 10),
                     name: serviceData.name,
                     description: serviceData.description,

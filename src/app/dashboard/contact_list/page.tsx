@@ -146,7 +146,7 @@ const FormPage = () => {
                         {contact.status === 1 ? (
                           <Chip label="Active" color="secondary" size="small" />
                         ) : (
-                           <Chip label="Inactive" color="red" size="small" />
+                           <Chip label="Inactive" color="warning" size="small" />
                         )}
                       </TableCell>
                   </TableRow>

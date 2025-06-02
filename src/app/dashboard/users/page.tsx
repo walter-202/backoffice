@@ -137,13 +137,15 @@ const DataTableWithModal = () => {
                   {header === "actions" ? (
                     "Actions"
                   ) : (
-                    <TableSortLabel
+                    <div></div>
+                    
+                    /*<TableSortLabel
                       active={orderBy === header}
                       direction={orderBy === header ? order : "asc"}
                       onClick={() => handleSort(header)}
                     >
                       {header.charAt(0).toUpperCase() + header.slice(1)}
-                    </TableSortLabel>
+                    </TableSortLabel>*/
                   )}
                 </TableCell>
               ))}

@@ -11,13 +11,11 @@ const lightTheme = createTheme({
     },
     background: {
       default: '#f9f9f9',
-      menu: '#151524',
       paper: '#fff',
     },
     text: {
       primary: 'rgba(0, 0, 0, 0.87)',
       secondary: 'rgba(0, 0, 0, 0.6)',
-      contrast: '#f9f9f9',
     },
   },
 });

@@ -32,7 +32,7 @@ import {
 import { Delete as DeleteIcon, Visibility as VisibilityIcon, Close as CloseIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { ServiceAddOn } from "../../interface/serviceAddOn";
+import { ServiceAddOn } from "../../../../interface/serviceAddOn";
 
 interface Service {
     pkService: number;
@@ -104,6 +104,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
             }
         },
     });
+    
+    interface AddonFromBackend {
+        pkAddon: number; 
+        isReail: boolean; 
+        name: string;
+        description: string;
+        contentWeb: string;
+        price: number; 
+        status: boolean; 
+    }
 
     useEffect(() => {
         const fetchServiceAddons = async () => {
@@ -117,7 +127,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
                     }
                     const responseData = await response.json();
                     if (responseData && Array.isArray(responseData.addons)) {
-                        const formattedAddons: ServiceAddOn[] = responseData.addons.map(item => ({
+                        const formattedAddons: ServiceAddOn[] = responseData.addons.map((item: AddonFromBackend) => ({
                             pkAddon: item.pkAddon,
                             isReail: item.isReail,
                             name: item.name,
@@ -252,9 +262,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ open, onClose, service }) => 
                 throw new Error(errorData.message || `Error updating addon: ${response.status}`);
             }
             const updatedAddon: ServiceAddOn = await response.json();
-            setAddons(addons.map(addon =>
-                addon.pkAddon === updatedAddon.addon.pkAddon ? updatedAddon.addon : addon
-            ));
+            /*setAddons(addons.map(addon =>
+                addon.pkAddon === updatedAddon.pkAddon ? updatedAddon.pkAddon : addon
+            ));*/
             setEditingAddon(null);
             formik.resetForm();
             showSnackbar('Addon updated successfully.', 'success');

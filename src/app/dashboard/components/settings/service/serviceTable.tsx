@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Edit, Visibility, Delete} from '@mui/icons-material';
 import AddchartIcon from '@mui/icons-material/Addchart';
-import { Service } from '../../interface/serviceData';
+import { Service } from '../../../../interface/serviceData';
 import { visuallyHidden } from '@mui/utils';
 import { ChangeEvent, MouseEvent, useState } from 'react';
 
@@ -31,7 +31,7 @@ interface ServiceTableProps {
     onDelete: (id: number) => void;
     orderBy: string;
     order: 'asc' | 'desc';
-    handleSort: (property: string) => void;
+    handleSort: (property: keyof Service) => void;
     page: number;
     rowsPerPage: number;
     handleChangePage: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
@@ -127,7 +127,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
                                 {service.name}
                             </TableCell>
                             <TableCell>{service.subCategory.name}</TableCell>
-                            <TableCell>{service.subCategory.category.name}</TableCell>
+                            <TableCell>{service.subCategory?.category?.name}</TableCell>
 
                             <TableCell>{service.clientType.pkType !== null ? service.clientType.name : '-'}</TableCell>
                             <TableCell>{service.serviceType.pkType !== null ? service.serviceType.name : '-'}</TableCell>

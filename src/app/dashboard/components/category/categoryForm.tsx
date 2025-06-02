@@ -35,6 +35,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ open, isEdit, onClose, cate
     description: '',
     createdAt: '', 
     updatedAt: '', 
+    subCategory: []
   }
   
   const [formValues, setFormValues] = useState(initialValues);

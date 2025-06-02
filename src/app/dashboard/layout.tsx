@@ -1,18 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState, ReactNode, AnchorHTMLAttributes, RefAttributes } from 'react'; 
+import Link, { LinkProps as NextLinkProps } from 'next/link'; 
 import { styled, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Drawer from '@mui/material/Drawer';
+import MuiDrawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
+import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'; 
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
@@ -37,7 +37,31 @@ const drawerWidth = 220;
 const collapsedWidth = 60;
 const transitionDuration = 0.3;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+interface MainProps {
+  open: boolean;
+}
+
+interface AppBarStyledProps extends MuiAppBarProps {
+  open: boolean;
+}
+
+interface GradientDrawerProps {
+  open: boolean;
+}
+
+type NextLinkComponentProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof NextLinkProps> & NextLinkProps & RefAttributes<HTMLAnchorElement>;
+
+interface StyledListItemButtonProps extends ListItemButtonProps {
+  open: boolean;
+  href?: string;
+  component?: React.ElementType | typeof Link; 
+}
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<MainProps>(
   ({ theme, open }) => ({
     flexGrow: 1,
     transition: theme.transitions.create('margin', {
@@ -61,30 +85,32 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   })
 );
 
-const AppBarStyled = styled(AppBar, {
+const AppBarStyled = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #303030, #424242)' : 'linear-gradient(to bottom, #f9f9f9, #F7F7F7)',
-  color: theme.palette.text.secondary,
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  boxShadow: theme.shadows[1],
-  ...(open && {
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: `${drawerWidth}px`,
-    },
-  }),
-  ...(!open && {
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(100% - ${collapsedWidth}px)`,
-      marginLeft: `${collapsedWidth}px`,
-    },
-  }),
-}));
+})<AppBarStyledProps>(
+  ({ theme, open }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #303030, #424242)' : 'linear-gradient(to bottom, #f9f9f9, #F7F7F7)',
+    color: theme.palette.text.secondary,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    boxShadow: theme.shadows[1],
+    ...(open && {
+      [theme.breakpoints.up('sm')]: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+      },
+    }),
+    ...(!open && {
+      [theme.breakpoints.up('sm')]: {
+        width: `calc(100% - ${collapsedWidth}px)`,
+        marginLeft: `${collapsedWidth}px`,
+      },
+    }),
+  })
+);
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -94,17 +120,16 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-//Estilos del menu
-const GradientDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+const GradientDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })<GradientDrawerProps>(
   ({ theme, open }) => ({
     '& .MuiDrawer-paper': {
       width: open ? drawerWidth : collapsedWidth,
       backgroundImage: theme.palette.mode === 'dark' ? 'linear-gradient(to bottom, #212121, #424242)' : 'linear-gradient(to bottom, #151524, #262645)',
-      color: theme.palette.text.contrast,
+      color: theme.palette.text.primary,
       borderRight: `5px solid ${theme.palette.divider}`,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
+        duration: transitionDuration,
       }),
       overflowX: 'hidden',
       [theme.breakpoints.up('sm')]: {
@@ -114,53 +139,54 @@ const GradientDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'o
   })
 );
 
-
 const StyledListItemButton = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  justifyContent: open ? 'initial' : 'center',
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  marginBottom: theme.spacing(0.5),
-  borderRadius: '8px',
-  transition: theme.transitions.create(['background-color', 'transform'], { 
-    duration: transitionDuration,
-  }),
-  '&:hover': {
-    backgroundColor: theme.palette.primary.main,
-    transform: 'translateX(10spx)',
+  shouldForwardProp: (prop) => prop !== 'open' && prop !== 'href', 
+})<StyledListItemButtonProps>(
+  ({ theme, open }) => ({
+    justifyContent: open ? 'initial' : 'center',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    marginBottom: theme.spacing(0.5),
+    borderRadius: '8px',
+    transition: theme.transitions.create(['background-color', 'transform'], {
+      duration: transitionDuration,
+    }),
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      transform: 'translateX(10px)',
+      '& .MuiListItemIcon-root': {
+        color: theme.palette.text.primary,
+      },
+      '& .MuiListItemText-root': {
+        color: theme.palette.text.primary,
+      },
+      '& .MuiTypography-root': {
+        fontWeight: 'bold',
+      },
+    },
     '& .MuiListItemIcon-root': {
-      color: theme.palette.text.primary,
+      minWidth: 0,
+      marginRight: open ? theme.spacing(3) : 'auto',
+      justifyContent: 'center',
+      color: theme.palette.common.white,
+      transition: theme.transitions.create('margin-right', {
+        duration: transitionDuration,
+      }),
     },
     '& .MuiListItemText-root': {
+      opacity: open ? 1 : 0,
       color: theme.palette.text.primary,
+      transition: theme.transitions.create('opacity', {
+        duration: transitionDuration,
+      }),
     },
-    '& .MuiTypography-root': { 
-      fontWeight: 'bold',
-    },
-  },
-  '& .MuiListItemIcon-root': {
-    minWidth: 0,
-    marginRight: open ? theme.spacing(3) : 'auto',
-    justifyContent: 'center',
-    color: theme.palette.common.white,
-    transition: theme.transitions.create('margin-right', {
-      duration: transitionDuration,
-    }),
-  },
-  '& .MuiListItemText-root': {
-    opacity: open ? 1 : 0,
-    color: theme.palette.text.contrast, 
-    transition: theme.transitions.create('opacity', {
-      duration: transitionDuration,
-    }),
-  },
-}));
+  })
+);
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
-  const [openSubMenu, setOpenSubMenu] = useState({});
+  const [openSubMenu, setOpenSubMenu] = useState<{ [key: string]: boolean }>({});
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
 
@@ -176,7 +202,7 @@ const DashboardLayout = ({ children }) => {
     setOpen(false);
   };
 
-  const handleClick = (label) => {
+  const handleClick = (label: string) => {
     setOpenSubMenu({ ...openSubMenu, [label]: !openSubMenu[label] });
   };
 
@@ -196,6 +222,7 @@ const DashboardLayout = ({ children }) => {
               edge="start"
               sx={{ mr: 2, ...(open && { display: { xs: 'block', sm: 'none' } }) }}
             >
+              {/* Puedes añadir un ícono aquí si quieres para el menú cuando está cerrado en móvil */}
             </IconButton>
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
               <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
@@ -245,12 +272,12 @@ const DashboardLayout = ({ children }) => {
               <React.Fragment key={item.label}>
                 <ListItem disablePadding sx={{ display: 'block' }}>
                   <StyledListItemButton
-                    component={item.href ? Link : 'div'}
-                    href={item.href}
+                     component={item.href ? Link : 'div' as React.ElementType} 
+                    {...(item.href && { href: item.href as string })} 
                     onClick={item.subItems ? () => handleClick(item.label) : undefined}
                     open={open}
                   >
-                    <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}> 
+                    <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}>
                       {item.icon}
                     </ListItemIcon>
                     <ListItemText primary={item.label} />
@@ -263,12 +290,12 @@ const DashboardLayout = ({ children }) => {
                       {item.subItems.map((subItem) => (
                         <ListItem key={subItem.label} disablePadding>
                           <StyledListItemButton
-                            component={Link}
-                            href={subItem.href}
+                            component={Link} 
+                            href={subItem.href} 
                             sx={{ pl: 4 }}
                             open={open}
                           >
-                            <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}> 
+                            <ListItemIcon sx={{ mr: open ? 3 : 'auto' }}>
                               {subItem.icon}
                             </ListItemIcon>
                             <ListItemText primary={subItem.label} />

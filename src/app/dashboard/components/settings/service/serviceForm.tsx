@@ -15,13 +15,13 @@ import {
     CircularProgress,
     FormHelperText,
 } from '@mui/material';
-import { Service } from '../../interface/serviceData';
+import { Service } from '../../../../interface/serviceData';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Category } from "../../interface/Category";
-import { SubCategory } from "../../interface/subCategory";
-import { ClientType } from "../../interface/clientType";
-import { ServiceType } from "../../interface/serviceType";
+import { Category } from "../../../../interface/category";
+import { SubCategory } from "../../../../interface/subCategory";
+import { ClientType } from "../../../../interface/clientType";
+import { ServiceType } from "../../../../interface/serviceType";
 
 interface ServiceFormProps {
     open: boolean;
@@ -71,7 +71,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         initialValues: service ? {
             name: service.name || '',
             description: service.description || '',
-            fkCategory: service.subCategory.category.pkCategory ? service.subCategory.category.pkCategory : '',
+            fkCategory: service.subCategory?.category?.pkCategory ? service.subCategory.category.pkCategory : '',
             fkSubCategory: service.subCategory.pkSubCategory ? service.subCategory.pkSubCategory : '',
             fkClientType: service.clientType.pkType !== undefined ? service.clientType.pkType : '',
             fkServiceType: service.serviceType.pkType !== undefined ? service.serviceType.pkType : '',
@@ -98,7 +98,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         if (!formik.values.fkCategory) {
             return [];
         }
-        return allSubCategories.filter(sub => sub.fkCategory === formik.values.fkCategory);
+        return allSubCategories.filter(sub => sub.category?.pkCategory === formik.values.fkCategory);
     }, [formik.values.fkCategory, allSubCategories]);
 
     useEffect(() => {
